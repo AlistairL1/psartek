@@ -27,4 +27,5 @@ coverage/
 # Ignore temporary files
 *.swp
 *~
+.DS_Store
 

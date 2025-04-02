@@ -296,11 +296,12 @@
         max-width: calc(50% - 8px);
         padding: 15px;
         border-radius: 15px;
+        aspect-ratio: 1;
     }
 
     .icon-item img {
-        width: 50px;
-        height: 50px;
+        width: 60px;
+        height: 60px;
     }
 
     .icon-item p {
@@ -338,12 +339,18 @@
     }
 
     .icon-item {
-        flex: 1 1 100px;
+        flex: 0 0 calc(50% - 8px);
+        max-width: calc(50% - 8px);
+        padding: 12px;
     }
 
     .icon-item img {
-        width: 40px;
-        height: 40px;
+        width: 50px;
+        height: 50px;
+    }
+
+    .icon-item p {
+        font-size: 0.8rem;
     }
 
     .info-card {
