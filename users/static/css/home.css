@@ -72,22 +72,23 @@
     justify-content: center;
     text-align: center;
     background: white;
-    border-radius: 20px;
-    padding: 20px;
+    border-radius: 12px;
+    padding: 1.5rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: all 0.3s ease;
+    border: 2px solid var(--primary-color);
     aspect-ratio: 1;
 }
 
 .icon-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .icon-item img {
     width: 80px;
     height: 80px;
-    margin-bottom: 15px;
+    margin-bottom: 1rem;
     transition: transform 0.3s ease;
     flex-shrink: 0;
 }
@@ -95,7 +96,7 @@
 .icon-item p {
     margin: 0;
     font-size: 1.1rem;
-    color: #2c3e50;
+    color: var(--text-color);
     flex-grow: 1;
     display: flex;
     align-items: center;
@@ -298,17 +299,15 @@
     .icon-row {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        grid-template-rows: repeat(2, 1fr);
-        gap: 15px;
+        gap: 1rem;
         width: 100%;
         padding: 0;
-        aspect-ratio: 1;
     }
 
     .icon-item {
         width: 100%;
-        padding: 15px;
-        border-radius: 15px;
+        padding: 1rem;
+        border-radius: 12px;
         aspect-ratio: 1;
         display: flex;
         flex-direction: column;
@@ -319,7 +318,7 @@
     .icon-item img {
         width: 60px;
         height: 60px;
-        margin-bottom: 10px;
+        margin-bottom: 0.75rem;
     }
 
     .icon-item p {
@@ -358,18 +357,17 @@
     }
 
     .icon-row {
-        gap: 12px;
-        aspect-ratio: 1;
+        gap: 0.75rem;
     }
 
     .icon-item {
-        padding: 12px;
+        padding: 0.75rem;
     }
 
     .icon-item img {
         width: 50px;
         height: 50px;
-        margin-bottom: 8px;
+        margin-bottom: 0.5rem;
     }
 
     .icon-item p {
