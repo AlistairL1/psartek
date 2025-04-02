@@ -18,35 +18,78 @@
                     <i class="fas fa-umbrella-beach"></i>
                     Vacances Psartek
                 </a>
+                <button class="hamburger-menu" aria-label="Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
             </div>
             <div class="nav-right">
-                {% if user.is_authenticated %}
-                    <a href="{% url 'game_home' %}" class="nav-link">
-                        <i class="fas fa-gamepad"></i>
-                        Accueil - Jeux
-                    </a>
-                    <a href="{% url 'poll' %}" class="nav-link">
-                        <i class="fas fa-train"></i>
-                        Sondage
-                    </a>
-                    <a href="{% url 'map_guess' %}" class="nav-link">
-                        <i class="fas fa-map-marker-alt"></i>
-                        GeoGuessr
-                    </a>
-                    <a href="{% url 'results' %}" class="nav-link">
-                        <i class="fas fa-trophy"></i>
-                        Résultats
-                    </a>
-                    <a href="{% url 'logout' %}" class="nav-link">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Déconnexion
-                    </a>
-                {% else %}
-                    <a href="{% url 'login' %}" class="nav-link">
-                        <i class="fas fa-sign-in-alt"></i>
-                        Connexion
-                    </a>
-                {% endif %}
+                <div class="desktop-menu">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'game_home' %}" class="nav-link">
+                            <i class="fas fa-gamepad"></i>
+                            Accueil - Jeux
+                        </a>
+                        <a href="{% url 'poll' %}" class="nav-link">
+                            <i class="fas fa-train"></i>
+                            Sondage
+                        </a>
+                        <a href="{% url 'map_guess' %}" class="nav-link">
+                            <i class="fas fa-map-marker-alt"></i>
+                            GeoGuessr
+                        </a>
+                        <a href="{% url 'results' %}" class="nav-link">
+                            <i class="fas fa-trophy"></i>
+                            Résultats
+                        </a>
+                        <a href="{% url 'logout' %}" class="nav-link">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Déconnexion
+                        </a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="nav-link">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Connexion
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="mobile-menu">
+                    <div class="mobile-menu-header">
+                        <h2>Menu</h2>
+                    </div>
+                    <div class="mobile-menu-content">
+                        <a href="{% url 'users_home' %}" class="nav-link">
+                            <i class="fas fa-home"></i>
+                            Accueil
+                        </a>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'game_home' %}" class="nav-link">
+                                <i class="fas fa-gamepad"></i>
+                                Accueil - Jeux
+                            </a>
+                            <a href="{% url 'poll' %}" class="nav-link">
+                                <i class="fas fa-train"></i>
+                                Sondage
+                            </a>
+                            <a href="{% url 'map_guess' %}" class="nav-link">
+                                <i class="fas fa-map-marker-alt"></i>
+                                GeoGuessr
+                            </a>
+                            <a href="{% url 'results' %}" class="nav-link">
+                                <i class="fas fa-trophy"></i>
+                                Résultats
+                            </a>
+                            <a href="{% url 'logout' %}" class="nav-link">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Déconnexion
+                            </a>
+                        {% else %}
+                            <a href="{% url 'login' %}" class="nav-link">
+                                <i class="fas fa-sign-in-alt"></i>
+                                Connexion
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </nav>
     </header>
@@ -71,5 +114,18 @@
     </footer>
 
     {% block extra_js %}{% endblock %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const hamburger = document.querySelector('.hamburger-menu');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            const body = document.body;
+            
+            hamburger.addEventListener('click', function() {
+                mobileMenu.classList.toggle('active');
+                hamburger.classList.toggle('active');
+                body.classList.toggle('menu-open');
+            });
+        });
+    </script>
 </body>
 </html>
