@@ -1,0 +1,67 @@
+{% extends 'games/base.html' %}
+
+{% load static %}
+
+{% block content %}
+    <div class="game-home-container">
+        <div class="welcome-section">
+            <h1>Bonjour {{ user.first_name }} !</h1>
+            <p>Bienvenue dans l'espace jeux des vacances Psartek</p>
+        </div>
+
+        <section class="games">
+            <h2>Choisissez un jeu</h2>
+            <div class="game-options">
+                <a href="{% url 'poll' %}" class="game-btn">
+                    <div class="game-btn-content">
+                        <div class="game-btn-image">
+                            <img src="{% static 'images/transport.jpeg' %}" alt="Transport">
+                        </div>
+                        <div class="game-btn-text">
+                            <i class="fas fa-train"></i>
+                            <span>Sondage sur les transports</span>
+                        </div>
+                    </div>
+                </a>
+                <a href="{% url 'map_guess' %}" class="game-btn">
+                    <div class="game-btn-content">
+                        <div class="game-btn-image">
+                            <img src="{% static 'images/map.jpeg' %}" alt="Carte">
+                        </div>
+                        <div class="game-btn-text">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>GeoGuessr</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <a href="{% url 'results' %}" class="results-btn">
+                <i class="fas fa-trophy"></i>
+                Voir les résultats
+            </a>
+        </section>
+        <section class="info-cards">
+            <div class="info-card">
+                <i class="fas fa-calendar-alt"></i>
+                <h3>Dates du voyage</h3>
+                <p>Avril 2025</p>
+                <p style="color: #666; font-style: italic; font-size: 0.9em;">du 19 au 26</p>
+            </div>
+            <div class="info-card">
+                <i class="fas fa-map-marker-alt"></i>
+                <h3>Destination</h3>
+                <img src="{% static 'images/france.png' %}" alt="Carte de France" style="width: 50px">
+                <p>France</p>
+            </div>
+            <div class="info-card">
+                <i class="fas fa-suitcase"></i>
+                <h3>Bagages autorisés</h3>
+                <p>1 valise de 23kg</p>
+                <p>1 bagage à main de 10kg</p>
+            </div>
+        </section>
+    </div>
+
+    <!-- Lien vers le fichier CSS spécifique à la page -->
+    <link rel="stylesheet" href="{% static 'css/game_home.css' %}">
+{% endblock %}

@@ -1,0 +1,170 @@
+{% extends 'games/base.html' %}
+{% load static %}
+
+{% block title %}Devine le transport{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/poll.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="poll-container">
+    <div class="poll-content">
+        <h1>Devine le transport</h1>
+        <p class="poll-description">Quels modes de transport pensez-vous que nous allons utiliser pour rejoindre notre destination ?</p>
+
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if has_responded and not want_to_modify %}
+        <div class="response-summary">
+            <h2>Votre réponse</h2>
+            <div class="your-responses">
+                {% if 'train' in selected_transport_values %}
+                <div class="transport-item">
+                    <i class="fas fa-train"></i>
+                    <span>Train</span>
+                </div>
+                {% endif %}
+                {% if 'plane' in selected_transport_values %}
+                <div class="transport-item">
+                    <i class="fas fa-plane"></i>
+                    <span>Avion</span>
+                </div>
+                {% endif %}
+                {% if 'car' in selected_transport_values %}
+                <div class="transport-item">
+                    <i class="fas fa-car"></i>
+                    <span>Voiture</span>
+                </div>
+                {% endif %}
+                {% if 'bus' in selected_transport_values %}
+                <div class="transport-item">
+                    <i class="fas fa-bus"></i>
+                    <span>Bus</span>
+                </div>
+                {% endif %}
+                {% if 'ship' in selected_transport_values %}
+                <div class="transport-item">
+                    <i class="fas fa-ship"></i>
+                    <span>Bateau</span>
+                </div>
+                {% endif %}
+                {% if 'walking' in selected_transport_values %}
+                <div class="transport-item">
+                    <i class="fas fa-walking"></i>
+                    <span>Marche</span>
+                </div>
+                {% endif %}
+                {% if 'bike' in selected_transport_values %}
+                <div class="transport-item">
+                    <i class="fas fa-bicycle"></i>
+                    <span>Vélo</span>
+                </div>
+                {% endif %}
+                {% if 'subway' in selected_transport_values %}
+                <div class="transport-item">
+                    <i class="fas fa-subway"></i>
+                    <span>Métro/RER</span>
+                </div>
+                {% endif %}
+            </div>
+            {% if can_modify %}
+            <div class="modify-section">
+                <a href="?modify=true" class="modify-btn">
+                    <i class="fas fa-edit"></i>
+                    Modifier ma réponse
+                </a>
+            </div>
+            {% else %}
+            <p class="response-note">Les résultats ont été validés par l'administrateur. Vous ne pouvez plus modifier votre réponse.</p>
+            {% endif %}
+            <div class="back-to-games">
+                <a href="{% url 'game_home' %}" class="back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    Retour aux jeux
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <form method="post" class="poll-form">
+            {% csrf_token %}
+            <div class="transport-options">
+                <div class="transport-option">
+                    <input type="checkbox" name="transport" id="train" value="train" {% if 'train' in selected_transport_values %}checked{% endif %}>
+                    <label for="train">
+                        <i class="fas fa-train"></i>
+                        <span>Train</span>
+                    </label>
+                </div>
+                <div class="transport-option">
+                    <input type="checkbox" name="transport" id="plane" value="plane" {% if 'plane' in selected_transport_values %}checked{% endif %}>
+                    <label for="plane">
+                        <i class="fas fa-plane"></i>
+                        <span>Avion</span>
+                    </label>
+                </div>
+                <div class="transport-option">
+                    <input type="checkbox" name="transport" id="car" value="car" {% if 'car' in selected_transport_values %}checked{% endif %}>
+                    <label for="car">
+                        <i class="fas fa-car"></i>
+                        <span>Voiture</span>
+                    </label>
+                </div>
+                <div class="transport-option">
+                    <input type="checkbox" name="transport" id="bus" value="bus" {% if 'bus' in selected_transport_values %}checked{% endif %}>
+                    <label for="bus">
+                        <i class="fas fa-bus"></i>
+                        <span>Bus</span>
+                    </label>
+                </div>
+                <div class="transport-option">
+                    <input type="checkbox" name="transport" id="ship" value="ship" {% if 'ship' in selected_transport_values %}checked{% endif %}>
+                    <label for="ship">
+                        <i class="fas fa-ship"></i>
+                        <span>Bateau</span>
+                    </label>
+                </div>
+                <div class="transport-option">
+                    <input type="checkbox" name="transport" id="walking" value="walking" {% if 'walking' in selected_transport_values %}checked{% endif %}>
+                    <label for="walking">
+                        <i class="fas fa-walking"></i>
+                        <span>Marche</span>
+                    </label>
+                </div>
+                <div class="transport-option">
+                    <input type="checkbox" name="transport" id="bike" value="bike" {% if 'bike' in selected_transport_values %}checked{% endif %}>
+                    <label for="bike">
+                        <i class="fas fa-bicycle"></i>
+                        <span>Vélo</span>
+                    </label>
+                </div>
+                <div class="transport-option">
+                    <input type="checkbox" name="transport" id="subway" value="subway" {% if 'subway' in selected_transport_values %}checked{% endif %}>
+                    <label for="subway">
+                        <i class="fas fa-subway"></i>
+                        <span>Métro/RER</span>
+                    </label>
+                </div>
+            </div>
+            <div class="form-footer">
+                <p class="selection-note">Sélectionnez au moins un mode de transport</p>
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-paper-plane"></i>
+                    {% if has_responded %}Voter de nouveau{% else %}Envoyer ma réponse{% endif %}
+                </button>
+            </div>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+<link rel="stylesheet" href="{% static 'css/poll.css' %}">
+{% endblock %}

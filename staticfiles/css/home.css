@@ -1,0 +1,147 @@
+{% load static %}
+
+.homepage {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 0; /* Supprime tout espacement interne */
+    height: 80vh; /* Prend toute la hauteur de l'écran */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centre le contenu verticalement */
+    align-items: center; /* Centre le contenu horizontalement */
+}
+
+.homepage-header {
+    background-color: transparent;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.homepage-icons {
+    margin: 20px 0;
+}
+
+.icons-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+icon-item img {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
+    transition: transform 0.3s ease; /* Animation fluide */
+    background-image: url("{% static 'icons/sunglasses.png' %}");
+}
+
+.icon-item img {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
+}
+
+.homepage-navigation .btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-top: 20px;
+}
+
+.homepage-navigation .btn:hover {
+    background-color: #0056b3;
+}
+
+.icon-item img {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
+    transition: transform 0.3s ease; /* Animation fluide */
+}
+
+.icon-item img:hover {
+    transform: scale(1.2); /* Agrandit l'image de 20% */
+}
+
+.heart-button {
+    font-size: 2rem; /* Taille du texte (emoji) */
+    background: transparent; /* Pas de fond */
+    border: none; /* Pas de bordure */
+    cursor: pointer; /* Curseur en forme de main */
+    padding: 0; /* Supprime les marges internes */
+    line-height: 1; /* Ajuste la hauteur de ligne */
+    display: inline-block;
+    width: auto; /* Ajuste la largeur au contenu */
+    height: auto; /* Ajuste la hauteur au contenu */
+}
+
+.heart-button:hover {
+    transform: scale(1.2); /* Agrandit légèrement au survol */
+    transition: transform 0.2s ease;
+}
+
+/* Supprime tout effet de focus ou de clic */
+.heart-button:focus,
+.heart-button:active {
+    outline: none; /* Pas de contour */
+    background: none; /* Pas de fond */
+}
+
+.hearts-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Empêche l'interaction avec les cœurs */
+    overflow: hidden;
+}
+
+.heart {
+    position: absolute;
+    top: -50px; /* Commence légèrement au-dessus de l'écran */
+    font-size: 2rem; /* Taille des cœurs (emoji) */
+    animation: fall 5s ease-in-out forwards;
+    opacity: 0; /* Les cœurs sont invisibles avant l'animation */
+    will-change: transform, opacity; /* Optimisation pour les animations */
+}
+
+@keyframes fall {
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    80% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh); /* Descend jusqu'en bas de l'écran */
+        opacity: 0;
+    }
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100vh) scale(0.5);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}

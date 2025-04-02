@@ -1,0 +1,75 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Vacances Psartek{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header class="main-header">
+        <nav class="nav-container">
+            <div class="nav-left">
+                <a href="{% url 'users_home' %}" class="logo">
+                    <i class="fas fa-umbrella-beach"></i>
+                    Vacances Psartek
+                </a>
+            </div>
+            <div class="nav-right">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'game_home' %}" class="nav-link">
+                        <i class="fas fa-gamepad"></i>
+                        Accueil - Jeux
+                    </a>
+                    <a href="{% url 'poll' %}" class="nav-link">
+                        <i class="fas fa-train"></i>
+                        Sondage
+                    </a>
+                    <a href="{% url 'map_guess' %}" class="nav-link">
+                        <i class="fas fa-map-marker-alt"></i>
+                        GeoGuessr
+                    </a>
+                    <a href="{% url 'results' %}" class="nav-link">
+                        <i class="fas fa-trophy"></i>
+                        Résultats
+                    </a>
+                    <a href="{% url 'logout' %}" class="nav-link">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Déconnexion
+                    </a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="nav-link">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Connexion
+                    </a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="main-footer">
+        <div class="footer-content">
+            <p>&copy; 2025 Psartek. Tous droits réservés.</p>
+            <div class="footer-links">
+                <a href="{% url 'users_home' %}">Accueil</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'game_home' %}">Jeux</a>
+                    <a href="{% url 'logout' %}">Déconnexion</a>
+                {% else %}
+                    <a href="{% url 'login' %}">Connexion</a>
+                {% endif %}
+            </div>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

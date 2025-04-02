@@ -1,0 +1,84 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block title %}Vacances Psartek{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="homepage">
+    <header class="homepage-header">
+        <h1>Bienvenue pour les vacances Psartek</h1>
+        <p>Préparez-vous pour des vacances inoubliables tous ensemble ! ❤️</p>
+        <button class="heart-button" onclick="handleHeartClick()">
+            ❤️
+        </button>
+    </header>
+
+    <!-- Pluie de cœurs -->
+    <div class="hearts-container" id="hearts-container"></div>
+
+    <section class="homepage-icons">
+        <h2>Que mettre dans votre valise ?</h2>
+        <div class="icons-container">
+            <div class="icon-item">
+                <img src="{% static 'icons/sunglasses.png' %}" alt="Lunettes de soleil" />
+                <p>Lunettes de soleil</p>
+            </div>
+            <div class="icon-item">
+                <img src="{% static 'icons/swimsuit.png' %}" alt="Maillot de bain" />
+                <p>Maillot de bain</p>
+            </div>
+            <div class="icon-item">
+                <img src="{% static 'icons/sunscreen.png' %}" alt="Crème solaire" />
+                <p>Crème solaire</p>
+            </div>
+            <div class="icon-item">
+                <img src="{% static 'icons/raincoat.png' %}" alt="Habits de pluie" />
+                <p>Habits de pluie</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="homepage-navigation">
+        {% if user.is_authenticated %}
+        <h2>Prêt à jouer ?</h2>
+            <a href="{% url 'game_home' %}" class="btn">
+                <i class="fas fa-gamepad"></i>
+                Accéder aux jeux
+            </a>
+        {% else %}
+            <a href="{% url 'login' %}" class="btn">
+                <i class="fas fa-sign-in-alt"></i>
+                Se connecter
+            </a>
+        {% endif %}
+
+            <div class="info-cards">
+                <div class="info-card">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h3>Dates du voyage</h3>
+                    <p>Avril 2025</p>
+                    <p style="color: #666; font-style: italic; font-size: 0.9em;">du 19 au 26</p>
+                </div>
+                <div class="info-card">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <h3>Destination</h3>
+                    <p>France</p>
+                </div>
+                <div class="info-card">
+                    <i class="fas fa-suitcase"></i>
+                    <h3>Bagages autorisés</h3>
+                    <p>1 valise de 23kg</p>
+                    <p>1 bagage à main de 10kg</p>
+                </div>
+            </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/home.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,351 @@
+{% extends 'games/base.html' %}{% load static %}
+
+{% block title %}Évaluation de {{ user.first_name }}{% endblock %}
+
+{% block content %}
+<div class="evaluation-container">
+    <div class="evaluation-header">
+        <h1>Évaluation de {{ user.first_name }}</h1>
+        <a href="{% url 'evaluate_responses' %}" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Retour à la liste
+        </a>
+    </div>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="message {{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post" class="evaluation-form">
+        {% csrf_token %}
+        
+        <!-- Transport -->
+        <div class="evaluation-section">
+            <h2>Transport</h2>
+            <div class="response-details">
+                <div class="transports-selected">
+                    {% for transport in transport_guess.transports %}
+                    <span class="transport-tag">{{ transport }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="evaluation-controls">
+                <div class="control-group">
+                    <label class="radio-label">
+                        <input type="radio" name="transport_correct" value="true" 
+                               {% if transport_guess.is_verified == True %}checked{% endif %}>
+                        Correct
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="transport_correct" value="false"
+                               {% if transport_guess.is_verified == False %}checked{% endif %}>
+                        Incorrect
+                    </label>
+                </div>
+                
+                <div class="score-input">
+                    <label for="transport_score">Score (0-10)</label>
+                    <input type="number" id="transport_score" name="transport_score" 
+                           min="0" max="10" value="{{ transport_guess.score|default:0 }}">
+                </div>
+                
+                <div class="feedback-input">
+                    <label for="transport_feedback">Commentaire</label>
+                    <textarea id="transport_feedback" name="transport_feedback" 
+                              rows="3">{{ transport_guess.feedback|default:'' }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Carte -->
+        <div class="evaluation-section">
+            <h2>Carte</h2>
+            <div class="response-details">
+                <div class="city-name">{{ map_guess.city_name|default:"Ville inconnue" }}</div>
+                <div class="map-container">
+                    <div id="map" class="result-map"></div>
+                </div>
+            </div>
+            
+            <div class="evaluation-controls">
+                <div class="control-group">
+                    <label class="radio-label">
+                        <input type="radio" name="map_correct" value="true"
+                               {% if map_guess.is_correct == True %}checked{% endif %}>
+                        Correct
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="map_correct" value="false"
+                               {% if map_guess.is_correct == False %}checked{% endif %}>
+                        Incorrect
+                    </label>
+                </div>
+                
+                <div class="score-input">
+                    <label for="map_score">Score (0-10)</label>
+                    <input type="number" id="map_score" name="map_score" 
+                           min="0" max="10" value="{{ map_guess.score|default:0 }}">
+                </div>
+                
+                <div class="distance-input">
+                    <label for="distance_to_target">Distance (km)</label>
+                    <input type="number" id="distance_to_target" name="distance_to_target" 
+                           step="0.1" value="{{ map_guess.distance_to_target|default:0 }}">
+                </div>
+                
+                <div class="feedback-input">
+                    <label for="map_feedback">Commentaire</label>
+                    <textarea id="map_feedback" name="map_feedback" 
+                              rows="3">{{ map_guess.feedback|default:'' }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Commentaire global -->
+        <div class="evaluation-section">
+            <h2>Commentaire global</h2>
+            <div class="feedback-input">
+                <textarea name="global_feedback" rows="3">{{ evaluation.feedback|default:'' }}</textarea>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="submit-btn">
+                <i class="fas fa-save"></i>
+                Enregistrer l'évaluation
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    .evaluation-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .evaluation-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .evaluation-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--text-color);
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: var(--secondary-color);
+        color: white;
+        border-radius: var(--radius);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .back-btn:hover {
+        background: #475569;
+        transform: translateY(-1px);
+    }
+
+    .evaluation-section {
+        background: var(--card-bg);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--shadow);
+    }
+
+    .evaluation-section h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-color);
+        margin-bottom: 1rem;
+    }
+
+    .response-details {
+        margin-bottom: 1.5rem;
+    }
+
+    .transports-selected {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .transport-tag {
+        background: var(--background);
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius);
+        font-weight: 500;
+    }
+
+    .city-name {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-color);
+        margin-bottom: 1rem;
+    }
+
+    .map-container {
+        border-radius: var(--radius);
+        overflow: hidden;
+        background: var(--background);
+    }
+
+    .result-map {
+        height: 300px;
+        width: 100%;
+    }
+
+    .evaluation-controls {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .control-group {
+        display: flex;
+        gap: 1.5rem;
+    }
+
+    .radio-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+    }
+
+    .radio-label input[type="radio"] {
+        width: 1.2rem;
+        height: 1.2rem;
+    }
+
+    .score-input, .distance-input, .feedback-input {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .score-input label, .distance-input label, .feedback-input label {
+        font-weight: 500;
+        color: var(--text-color);
+    }
+
+    .score-input input, .distance-input input {
+        padding: 0.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius);
+        font-size: 1rem;
+    }
+
+    .feedback-input textarea {
+        padding: 0.75rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius);
+        font-size: 1rem;
+        resize: vertical;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 2rem;
+    }
+
+    .submit-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 2rem;
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        border-radius: var(--radius);
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow);
+    }
+
+    @media (max-width: 768px) {
+        .evaluation-container {
+            padding: 1rem;
+        }
+
+        .evaluation-header {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .evaluation-header h1 {
+            font-size: 2rem;
+        }
+
+        .control-group {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const map = L.map('map', {
+            center: [45.63354, 1.888334],
+            zoom: 4.2,
+            zoomControl: false,
+            dragging: false,
+            scrollWheelZoom: false,
+            doubleClickZoom: false,
+            boxZoom: false,
+            keyboard: false,
+            tap: false
+        });
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        {% if map_guess and map_guess.latitude and map_guess.longitude %}
+            const customIcon = L.divIcon({
+                className: 'custom-marker',
+                html: '<div class="marker-inner"></div>',
+                iconSize: [12, 12],
+                iconAnchor: [6, 6]
+            });
+
+            L.marker([{{ map_guess.latitude }}, {{ map_guess.longitude }}], {
+                icon: customIcon
+            }).addTo(map);
+        {% endif %}
+    });
+</script>
+{% endblock %} 

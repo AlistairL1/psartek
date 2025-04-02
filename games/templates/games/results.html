@@ -1,0 +1,255 @@
+{% extends 'games/base.html' %}
+{% load static %}
+
+{% block title %}Résultats des jeux{% endblock %}
+
+{% block content %}
+<div class="results-container">
+    <div class="results-header">
+        <h1>Résultats</h1>
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    {% if user.is_authenticated %}
+        <div class="admin-panel">
+            {% for group in user.groups.all %}
+                {% if group.name == 'Organisateur' %}
+                    <div class="admin-buttons">
+                        <a href="{% url 'results' %}" class="admin-btn primary">
+                            <i class="fas fa-chart-bar"></i>
+                            Voir mes résultats
+                        </a>
+                        <a href="{% url 'evaluate_responses' %}" class="admin-btn secondary">
+                            <i class="fas fa-star"></i>
+                            Évaluer les résultats
+                        </a>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="results-grid">
+        <!-- Score Total -->
+        <div class="score-card total-score">
+            <div class="score-header">
+                <i class="fas fa-trophy"></i>
+                <h2>Score Total - {{ user.first_name }}</h2>
+            </div>
+            <div class="score-content">
+                <div class="main-score">{{ total_score }}</div>
+                <div class="score-breakdown">
+                    <div class="score-item">
+                        <span class="label">Transport</span>
+                        <span class="value">{{ transport_score }}</span>
+                        {% if transport_guess %}
+                            {% if transport_guess.is_verified is None %}
+                                <i class="fas fa-hourglass-half pending-icon" title="En attente de confirmation"></i>
+                            {% else %}
+                                <i class="fas fa-check-circle valid-icon" title="Réponse confirmée"></i>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    <div class="score-item">
+                        <span class="label">Carte</span>
+                        <span class="value">{{ map_score }}</span>
+                        {% if map_guess %}
+                            {% if map_guess.is_correct is None %}
+                                <i class="fas fa-hourglass-half pending-icon" title="En attente de confirmation"></i>
+                            {% else %}
+                                <i class="fas fa-check-circle valid-icon" title="Réponse confirmée"></i>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sondage Transport -->
+        <div class="score-card transport-score">
+            <div class="score-header">
+                <i class="fas fa-bus"></i>
+                <h2>Sondage Transport</h2>
+                {% if transport_guess_list and transport_guess_list.0.is_verified is None %}
+                    <i class="fas fa-hourglass-half pending-icon" title="Attente"></i>
+                {% endif %}
+            </div>
+            <div class="score-content">
+                {% if transport_guess %}
+                    <div class="transport-grid">
+                        {% if 'bus' in transport_guess.transports %}
+                            <div class="transport-item" title="Bus">
+                                <i class="fas fa-bus"></i>
+                            </div>
+                        {% endif %}
+                        {% if 'train' in transport_guess.transports %}
+                            <div class="transport-item" title="Train">
+                                <i class="fas fa-train"></i>
+                            </div>
+                        {% endif %}
+                        {% if 'plane' in transport_guess.transports %}
+                            <div class="transport-item" title="Avion">
+                                <i class="fas fa-plane"></i>
+                            </div>
+                        {% endif %}
+                        {% if 'car' in transport_guess.transports %}
+                            <div class="transport-item" title="Voiture">
+                                <i class="fas fa-car"></i>
+                            </div>
+                        {% endif %}
+                        {% if 'ship' in transport_guess.transports %}
+                            <div class="transport-item" title="Bateau">
+                                <i class="fas fa-ship"></i>
+                            </div>
+                        {% endif %}
+                        {% if 'walking' in transport_guess.transports %}
+                            <div class="transport-item" title="Marche">
+                                <i class="fas fa-walking"></i>
+                            </div>
+                        {% endif %}
+                        {% if 'bike' in transport_guess.transports %}
+                            <div class="transport-item" title="Vélo">
+                                <i class="fas fa-bicycle"></i>
+                            </div>
+                        {% endif %}
+                        {% if 'subway' in transport_guess.transports %}
+                            <div class="transport-item" title="Métro/RER">
+                                <i class="fas fa-subway"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Vous n'avez pas encore participé à ce jeu</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- GeoGuessr -->
+        <div class="score-card map-score">
+            <div class="score-header">
+                <i class="fas fa-map-marker-alt"></i>
+                <h2>GeoGuessr</h2>
+            </div>
+            <div class="score-content">
+                {% if map_guess %}
+                    <div class="map-result">
+                        <div class="city-name">{{ map_guess.city_name|default:"Ville inconnue" }}</div>
+                        {% if map_guess.is_correct is not None %}
+                            <div class="result-status {% if map_guess.is_correct %}correct{% else %}incorrect{% endif %}">
+                                <i class="fas {% if map_guess.is_correct %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+                                {{ map_guess.is_correct|yesno:"Correct,Incorrect" }}
+                            </div>
+                            <div class="score-details">
+                                <div class="score-item">
+                                    <span class="label">Score</span>
+                                    <span class="value">{{ map_guess.score }}/10</span>
+                                </div>
+                            </div>
+                            {% if map_guess.feedback %}
+                                <div class="feedback">
+                                    <i class="fas fa-comment"></i>
+                                    <p>{{ map_guess.feedback }}</p>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                        <div class="map-container">
+                            <div id="map" class="result-map"></div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Vous n'avez pas encore participé à ce jeu</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Classement -->
+    <div class="leaderboard-section">
+        <h2>Classement</h2>
+        <div class="leaderboard">
+            {% for user in leaderboard %}
+                <div class="leaderboard-item {% if user.is_current_user %}current-user{% endif %}">
+                    <div class="rank">{{ forloop.counter }}</div>
+                    <div class="user-info">
+                        <span class="username">
+                            {% if not 'Technicien' in user.groups.all|stringformat:"s" %}
+                                {{ user.first_name }}
+                            {% else %}
+                                Anonyme
+                            {% endif %}
+                        </span>
+                        <span class="score">{{ user.total_score }} points</span>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="empty-state">
+                    <i class="fas fa-trophy"></i>
+                    <p>Aucun résultat disponible pour le moment</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/results.css' %}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+{% endblock %}
+
+{% block extra_js %}
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const map = L.map('map', {
+                center: [45.63354, 1.888334],
+                zoom: 4.2,
+                zoomControl: false,
+                dragging: false,
+                scrollWheelZoom: {
+                    inOnly: true
+                },
+                doubleClickZoom: {
+                    inOnly: true
+                },
+                boxZoom: false,
+                keyboard: false,
+                tap: false
+            });
+
+            // Set minimum zoom to initial zoom level
+            map.setMinZoom(4);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            {% if map_guess and map_guess.latitude and map_guess.longitude %}
+                const customIcon = L.divIcon({
+                    className: 'custom-marker',
+                    html: '<div class="marker-inner"></div>',
+                    iconSize: [12, 12],
+                    iconAnchor: [6, 6]
+                });
+
+                L.marker([{{ map_guess.latitude }}, {{ map_guess.longitude }}], {
+                    icon: customIcon
+                }).addTo(map);
+            {% endif %}
+        });
+    </script>
+{% endblock %}

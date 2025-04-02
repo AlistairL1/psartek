@@ -1,0 +1,234 @@
+/* Styles généraux pour la page de connexion */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #e74c3c;
+    color: #333;
+}
+
+.login-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.login-header h1 {
+    font-size: 2.5rem;
+    color: #2c3e50;
+}
+
+.login-header p {
+    font-size: 1.2rem;
+    color: #34495e;
+}
+
+/* Formulaire de connexion */
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: #e74c3c;
+}
+
+.login-content {
+    background: white;
+    padding: 3rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 480px;
+    position: relative;
+}
+
+.login-content h1 {
+    color: #2c3e50;
+    font-size: 2.2rem;
+    margin-bottom: 2rem;
+    text-align: center;
+    font-weight: 600;
+}
+
+.login-form {
+    margin-top: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #34495e;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.9rem 1.2rem;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    transition: all 0.2s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #e74c3c;
+    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1);
+}
+
+.submit-btn, .back-btn {
+    width: 100%;
+    padding: 1rem;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+    margin-top: 1.5rem;
+    text-decoration: none;
+}
+
+.submit-btn {
+    background: #e74c3c;
+}
+
+.submit-btn:hover {
+    background: #c0392b;
+    transform: translateY(-1px);
+}
+
+.back-btn {
+    background: #34495e;
+}
+
+.back-btn:hover {
+    background: #2c3e50;
+    transform: translateY(-1px);
+}
+
+.submit-btn:active, .back-btn:active {
+    transform: translateY(0);
+}
+
+.submit-btn i, .back-btn i {
+    font-size: 1.2rem;
+}
+
+/* Messages */
+.messages {
+    margin-bottom: 1.5rem;
+}
+
+.message {
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-size: 1rem;
+    animation: slideIn 0.2s ease;
+}
+
+.message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+    .login-content {
+        padding: 2rem;
+    }
+
+    .login-content h1 {
+        font-size: 1.8rem;
+    }
+
+    .form-group input {
+        padding: 0.8rem 1rem;
+    }
+
+    .submit-btn, .back-btn {
+        padding: 0.9rem;
+    }
+}
+
+/* Lien d'inscription */
+.signup-link {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 0.9rem;
+}
+
+.signup-link a {
+    color: #ff6b6b;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.signup-link a:hover {
+    text-decoration: underline;
+}
+
+/* Retour à l'accueil */
+.homepage-navigation {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.homepage-navigation a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    background: #333;
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+
+.homepage-navigation a:hover {
+    background: #555;
+}
+
+.soucis {
+    font-size: 0.8rem;
+    color: #888;
+    font-style: italic;
+}

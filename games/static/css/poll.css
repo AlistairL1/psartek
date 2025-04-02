@@ -1,0 +1,362 @@
+.poll-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    width: 100%;
+}
+
+.poll-content {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.poll-content h1 {
+    color: #2c3e50;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.poll-content p {
+    color: #666;
+    font-size: 1.1rem;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+/* Messages */
+.messages {
+    margin-bottom: 1.5rem;
+}
+
+.message {
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-size: 1rem;
+    animation: slideIn 0.2s ease;
+}
+
+.message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Transport Options */
+.transport-options {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.transport-option {
+    position: relative;
+}
+
+.transport-option input[type="checkbox"] {
+    display: none;
+}
+
+.transport-option label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    aspect-ratio: 1;
+    position: relative;
+}
+
+.transport-option label:hover {
+    background: #e9ecef;
+}
+
+.transport-option input[type="checkbox"]:checked + label {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    border-color: #c0392b;
+    color: white;
+}
+
+.transport-option i {
+    font-size: 4.5rem;
+    transition: transform 0.3s ease;
+}
+
+.transport-option label:hover i {
+    transform: translateY(-10px);
+}
+
+.transport-option label span {
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: center;
+    color: #2c3e50;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+}
+
+.transport-option label:hover span {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.transport-option input[type="checkbox"]:checked + label span {
+    color: white;
+}
+
+/* Form Footer */
+.form-footer {
+    text-align: center;
+}
+
+.selection-note {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    font-style: italic;
+}
+
+/* Submit Button */
+.submit-btn {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 131, 176, 0.2);
+}
+
+.submit-btn:active {
+    transform: translateY(0);
+}
+
+/* Response Summary */
+.response-summary {
+    text-align: center;
+    padding: 1rem;
+}
+
+.response-summary h2 {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+}
+
+.your-responses {
+    display: flex;
+    margin-bottom: 2rem;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.selected-transports {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+    gap: 1rem;
+    justify-content: center;
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.transport-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin: 1.5rem 0;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.transport-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    background: var(--card-bg);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    text-align: center;
+}
+
+.transport-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.transport-item.selected {
+    border-color: var(--primary-color);
+    background: rgba(0, 123, 255, 0.1);
+}
+
+.transport-item i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+}
+
+.transport-item span {
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+/* Modify Section */
+.modify-section {
+    margin: 2rem 0;
+}
+
+.modify-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.5rem;
+    background: #f8f9fa;
+    color: #2c3e50;
+    border: 2px solid #e9ecef;
+    border-radius: 15px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.modify-btn:hover {
+    background: #e9ecef;
+    transform: translateY(-2px);
+}
+
+/* Back to Games */
+.back-to-games {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.5rem;
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+    background: linear-gradient(135deg, #c0392b, #e74c3c);
+    transform: translateY(-2px);
+}
+
+.back-btn i {
+    font-size: 1.1rem;
+}
+
+/* Animation */
+@keyframes slideIn {
+    from {
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .poll-container {
+        padding: 1rem;
+    }
+
+    .poll-content {
+        padding: 1.5rem;
+    }
+
+    .transport-options {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+    }
+
+    .transport-option label {
+        padding: 1.2rem;
+    }
+
+    .transport-option i {
+        font-size: 3.5rem;
+    }
+
+    .submit-btn, .modify-btn, .back-btn {
+        padding: 0.8rem 1.2rem;
+    }
+
+    .transport-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.8rem;
+        padding: 0 1rem;
+    }
+
+    .transport-item {
+        padding: 0.8rem;
+    }
+
+    .transport-item i {
+        font-size: 1.8rem;
+    }
+
+    .transport-item span {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .transport-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.6rem;
+    }
+
+    .transport-item {
+        padding: 0.6rem;
+    }
+
+    .transport-item i {
+        font-size: 1.5rem;
+    }
+
+    .transport-item span {
+        font-size: 0.75rem;
+    }
+} 

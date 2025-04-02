@@ -1,0 +1,267 @@
+.poll-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    width: 100%;
+}
+
+.poll-content {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.poll-content h1 {
+    color: #0083b0;
+    margin: 0 0 15px;
+    font-size: 2rem;
+    text-align: center;
+}
+
+.poll-description {
+    color: #666;
+    font-size: 1.1rem;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* Messages */
+.messages {
+    margin-bottom: 20px;
+}
+
+.message {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Transport Options */
+.transport-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.transport-option {
+    position: relative;
+}
+
+.transport-option input[type="checkbox"] {
+    display: none;
+}
+
+.transport-option label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.transport-option label i {
+    font-size: 2.5rem;
+    color: #0083b0;
+    margin-bottom: 10px;
+}
+
+.transport-option label span {
+    font-size: 1.1rem;
+    color: #333;
+    font-weight: 500;
+}
+
+.transport-option input[type="checkbox"]:checked + label {
+    background: #e3f2fd;
+    border-color: #0083b0;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.transport-option:hover label {
+    border-color: #0083b0;
+    transform: translateY(-2px);
+}
+
+/* Form Footer */
+.form-footer {
+    text-align: center;
+}
+
+.selection-note {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    font-style: italic;
+}
+
+/* Submit Button */
+.submit-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #00b4db, #0083b0);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.submit-btn i {
+    font-size: 1.2rem;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Response Summary */
+.response-summary {
+    text-align: center;
+    padding: 20px;
+}
+
+.response-summary h2 {
+    color: #0083b0;
+    margin-bottom: 20px;
+}
+
+.your-responses {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.your-response {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: #f8f9fa;
+    border-radius: 20px;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.your-response i {
+    color: #0083b0;
+    font-size: 1.2rem;
+}
+
+.response-note {
+    color: #666;
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+/* Modify Section */
+.modify-section {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.modify-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 25px;
+    background: #f8f9fa;
+    color: #0083b0;
+    border: 2px solid #0083b0;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.modify-btn i {
+    font-size: 1.1rem;
+}
+
+.modify-btn:hover {
+    background: #0083b0;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .poll-container {
+        padding: 10px;
+    }
+
+    .poll-content {
+        padding: 20px;
+    }
+
+    .poll-content h1 {
+        font-size: 1.6rem;
+    }
+
+    .poll-description {
+        font-size: 1rem;
+    }
+
+    .transport-options {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .transport-option label {
+        padding: 15px;
+    }
+
+    .transport-option label i {
+        font-size: 2rem;
+    }
+
+    .transport-option label span {
+        font-size: 1rem;
+    }
+
+    .your-responses {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .your-response {
+        width: 100%;
+        max-width: 200px;
+        justify-content: center;
+    }
+
+    .modify-btn {
+        width: 100%;
+        justify-content: center;
+    }
+} 
