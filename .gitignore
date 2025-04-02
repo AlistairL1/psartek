@@ -1,4 +1,4 @@
-sartek_website/__pycache__/
+psartek_website/__pycache__/
 # Ignore Python bytecode files
 __pycache__/
 *.pyc
