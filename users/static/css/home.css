@@ -298,9 +298,11 @@
     .icon-row {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
         gap: 15px;
         width: 100%;
         padding: 0;
+        aspect-ratio: 1;
     }
 
     .icon-item {
@@ -357,6 +359,7 @@
 
     .icon-row {
         gap: 12px;
+        aspect-ratio: 1;
     }
 
     .icon-item {
