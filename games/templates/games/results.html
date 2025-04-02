@@ -1,7 +1,7 @@
 {% extends 'games/base.html' %}
 {% load static %}
 
-{% block title %}Résultats des jeux{% endblock %}
+{% block title %}Résultats - Vacances Psartek{% endblock %}
 
 {% block content %}
 <div class="results-container">
@@ -134,47 +134,6 @@
                 {% endif %}
             </div>
         </div>
-
-        <!-- GeoGuessr -->
-        <div class="score-card map-score">
-            <div class="score-header">
-                <i class="fas fa-map-marker-alt"></i>
-                <h2>GeoGuessr</h2>
-            </div>
-            <div class="score-content">
-                {% if map_guess %}
-                    <div class="map-result">
-                        <div class="city-name">{{ map_guess.city_name|default:"Ville inconnue" }}</div>
-                        {% if map_guess.is_correct is not None %}
-                            <div class="result-status {% if map_guess.is_correct %}correct{% else %}incorrect{% endif %}">
-                                <i class="fas {% if map_guess.is_correct %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
-                                {{ map_guess.is_correct|yesno:"Correct,Incorrect" }}
-                            </div>
-                            <div class="score-details">
-                                <div class="score-item">
-                                    <span class="label">Score</span>
-                                    <span class="value">{{ map_guess.score }}/10</span>
-                                </div>
-                            </div>
-                            {% if map_guess.feedback %}
-                                <div class="feedback">
-                                    <i class="fas fa-comment"></i>
-                                    <p>{{ map_guess.feedback }}</p>
-                                </div>
-                            {% endif %}
-                        {% endif %}
-                        <div class="map-container">
-                            <div id="map" class="result-map"></div>
-                        </div>
-                    </div>
-                {% else %}
-                    <div class="empty-state">
-                        <i class="fas fa-info-circle"></i>
-                        <p>Vous n'avez pas encore participé à ce jeu</p>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
     </div>
 
     <!-- Classement -->
@@ -186,11 +145,7 @@
                     <div class="rank">{{ forloop.counter }}</div>
                     <div class="user-info">
                         <span class="username">
-                            {% if not 'Technicien' in user.groups.all|stringformat:"s" %}
                                 {{ user.first_name }}
-                            {% else %}
-                                Anonyme
-                            {% endif %}
                         </span>
                         <span class="score">{{ user.total_score }} points</span>
                     </div>
@@ -208,48 +163,4 @@
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/results.css' %}">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-{% endblock %}
-
-{% block extra_js %}
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const map = L.map('map', {
-                center: [45.63354, 1.888334],
-                zoom: 4.2,
-                zoomControl: false,
-                dragging: false,
-                scrollWheelZoom: {
-                    inOnly: true
-                },
-                doubleClickZoom: {
-                    inOnly: true
-                },
-                boxZoom: false,
-                keyboard: false,
-                tap: false
-            });
-
-            // Set minimum zoom to initial zoom level
-            map.setMinZoom(4);
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
-
-            {% if map_guess and map_guess.latitude and map_guess.longitude %}
-                const customIcon = L.divIcon({
-                    className: 'custom-marker',
-                    html: '<div class="marker-inner"></div>',
-                    iconSize: [12, 12],
-                    iconAnchor: [6, 6]
-                });
-
-                L.marker([{{ map_guess.latitude }}, {{ map_guess.longitude }}], {
-                    icon: customIcon
-                }).addTo(map);
-            {% endif %}
-        });
-    </script>
 {% endblock %}

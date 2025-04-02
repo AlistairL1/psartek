@@ -27,13 +27,6 @@
     box-sizing: border-box;
 }
 
-body {
-    background-color: var(--background);
-    color: var(--text-color);
-    font-family: system-ui, -apple-system, sans-serif;
-    line-height: 1.5;
-}
-
 /* Conteneur principal */
 .results-container {
     max-width: 1200px;
@@ -205,11 +198,12 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 1rem;
     background: var(--background);
     border-radius: var(--radius);
-    font-size: 1.5rem;
-    color: var(--primary-color);
     transition: all 0.2s ease;
+    border: 2px solid var(--primary-color);
+    text-align: center;
 }
 
 .transport-item:hover {
@@ -217,101 +211,42 @@ body {
     box-shadow: var(--shadow);
 }
 
-/* Résultats de la carte */
-.map-result {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+.transport-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.city-name {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--primary-dark);
+.transport-item i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
 }
 
-.result-status {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius);
-    font-weight: 500;
-}
-
-.result-status.correct {
-    background-color: #dcfce7;
-    color: #166534;
-}
-
-.result-status.incorrect {
-    background-color: #fee2e2;
-    color: #991b1b;
-}
-
-.score-details {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+.transport-item span {
+    font-size: 0.9rem;
+    color: var(--text-color);
 }
 
 .score-item {
     display: flex;
-    font-size: 2rem;
     flex-direction: column;
     align-items: center;
-    gap: 0.75rem;
-    padding: 1rem;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
     background: var(--background);
     border-radius: var(--radius);
-    width: 100%;
+    border: 1px solid var(--border-color);
 }
 
 .score-item .label {
-    color: var(--text-color);
-    font-weight: 700;
-    font-size: 1.1rem;
+    color: var(--text-light);
+    font-size: 0.875rem;
 }
 
 .score-item .value {
+    font-size: 1.5rem;
     font-weight: 600;
-    font-size: 1.2rem;
-}
-
-.distance-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: var(--background);
-    border-radius: var(--radius);
-    color: var(--text-light);
-}
-
-.feedback {
-    display: flex;
-    gap: 0.75rem;
-    padding: 1rem;
-    background: var(--background);
-    border-radius: var(--radius);
-    color: var(--text-light);
-}
-
-.feedback i {
     color: var(--primary-color);
-}
-
-/* Carte */
-.map-container {
-    margin-top: 1rem;
-    border-radius: var(--radius);
-    overflow: hidden;
-    background: var(--background);
-}
-
-.result-map {
-    height: 200px;
-    width: 100%;
 }
 
 /* États vides */
@@ -397,64 +332,6 @@ body {
     color: var(--text-light);
 }
 
-/* Styles Leaflet */
-.leaflet-control-zoom {
-    display: none !important;
-}
-
-.leaflet-popup-content-wrapper {
-    background: var(--primary-gradient);
-    color: white;
-    border-radius: var(--radius);
-}
-
-.leaflet-popup-tip {
-    background: var(--primary-color);
-}
-
-.leaflet-popup-content {
-    margin: 0.5rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-}
-
-.leaflet-container {
-    background: transparent !important;
-}
-
-.leaflet-tile {
-    opacity: 0.8;
-}
-
-
-.transport-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 1rem;
-    background: var(--background);
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: 2px solid var(--primary-color);
-    text-align: center;
-}
-
-.transport-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.transport-item i {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-    color: var(--primary-color);
-}
-
-.transport-item span {
-    font-size: 0.9rem;
-    color: var(--text-color);
-}
 
 /* Animations */
 @keyframes hourglass {
@@ -472,18 +349,6 @@ body {
 .valid-icon {
     font-size: 2.5rem;
     color: var(--success-color);
-}
-
-@keyframes pulse {
-    0% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.5;
-    }
-    100% {
-        opacity: 1;
-    }
 }
 
 /* Media Queries */
@@ -511,25 +376,7 @@ body {
     .admin-panel {
         flex-direction: column;
     }
-}
-
-/* Custom Leaflet Marker Styles */
-.leaflet-marker-icon {
-    filter: none;
-    color: #e74c3c;
-    height: 25%;
-}
-
-.custom-marker {
-    background: none;
-    border: none;
-}
-
-.marker-inner {
-    width: 12px;
-    height: 12px;
-    background-color: #e74c3c;
-    border-radius: 50%;
-    border: 2px solid white;
-    box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+    .score-item {
+        padding: 0.75rem 1.5rem;
+    }
 }
