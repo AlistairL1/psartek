@@ -81,6 +81,7 @@
     transition: all 0.3s ease;
     aspect-ratio: 1;
     position: relative;
+    min-height: 120px;
 }
 
 .transport-option label:hover {
@@ -94,27 +95,27 @@
 }
 
 .transport-option i {
-    font-size: 4.5rem;
+    font-size: 3.5rem;
     transition: transform 0.3s ease;
+    margin-bottom: 0.5rem;
 }
 
 .transport-option label:hover i {
-    transform: translateY(-10px);
+    transform: translateY(-5px);
 }
 
 .transport-option label span {
-    font-size: 0.9rem;
+    font-size: 1rem;
     font-weight: 500;
     text-align: center;
     color: #2c3e50;
-    opacity: 0;
-    transform: translateY(10px);
+    opacity: 1;
+    transform: none;
     transition: all 0.3s ease;
 }
 
 .transport-option label:hover span {
-    opacity: 1;
-    transform: translateY(0);
+    transform: translateY(-2px);
 }
 
 .transport-option input[type="checkbox"]:checked + label span {
@@ -169,13 +170,15 @@
 .response-summary h2 {
     color: #2c3e50;
     margin-bottom: 1.5rem;
+    font-size: 1.8rem;
 }
 
 .your-responses {
-    display: flex;
-    margin-bottom: 2rem;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: 1rem;
-    justify-content: center;
+    margin-bottom: 2rem;
+    padding: 0 1rem;
 }
 
 .selected-transports {
@@ -201,13 +204,13 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 1rem;
-    background: var(--card-bg);
+    padding: 1.2rem;
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
     border-radius: 12px;
-    cursor: pointer;
     transition: all 0.3s ease;
-    border: 2px solid transparent;
     text-align: center;
+    min-height: 100px;
 }
 
 .transport-item:hover {
@@ -221,14 +224,22 @@
 }
 
 .transport-item i {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-    color: var(--primary-color);
+    font-size: 2.5rem;
+    margin-bottom: 0.8rem;
+    color: #e74c3c;
 }
 
 .transport-item span {
+    font-size: 1rem;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.response-note {
+    color: #666;
     font-size: 0.9rem;
-    color: var(--text-color);
+    margin: 1rem 0;
+    font-style: italic;
 }
 
 /* Modify Section */
@@ -299,24 +310,59 @@
 /* Responsive Design */
 @media (max-width: 768px) {
     .poll-container {
-        padding: 1rem;
+        padding: 10px;
     }
 
     .poll-content {
         padding: 1.5rem;
     }
 
+    .response-summary h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1.2rem;
+    }
+
+    .your-responses {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.8rem;
+        padding: 0 0.5rem;
+    }
+
+    .transport-item {
+        padding: 1rem;
+        min-height: 90px;
+    }
+
+    .transport-item i {
+        font-size: 2rem;
+        margin-bottom: 0.6rem;
+    }
+
+    .transport-item span {
+        font-size: 0.9rem;
+    }
+
+    .response-note {
+        font-size: 0.85rem;
+        margin: 0.8rem 0;
+    }
+
     .transport-options {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 1rem;
     }
 
     .transport-option label {
-        padding: 1.2rem;
+        padding: 1rem;
+        min-height: 100px;
     }
 
     .transport-option i {
-        font-size: 3.5rem;
+        font-size: 2.5rem;
+    }
+
+    .transport-option label span {
+        font-size: 0.9rem;
     }
 
     .submit-btn, .modify-btn, .back-btn {
@@ -343,6 +389,54 @@
 }
 
 @media (max-width: 480px) {
+    .response-summary h2 {
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+    }
+
+    .your-responses {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.6rem;
+        padding: 0;
+    }
+
+    .transport-item {
+        padding: 0.8rem;
+        min-height: 80px;
+    }
+
+    .transport-item i {
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .transport-item span {
+        font-size: 0.85rem;
+    }
+
+    .response-note {
+        font-size: 0.8rem;
+        margin: 0.6rem 0;
+    }
+
+    .transport-options {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.8rem;
+    }
+
+    .transport-option label {
+        padding: 0.8rem;
+        min-height: 90px;
+    }
+
+    .transport-option i {
+        font-size: 2rem;
+    }
+
+    .transport-option label span {
+        font-size: 0.85rem;
+    }
+
     .transport-grid {
         grid-template-columns: repeat(4, 1fr);
         gap: 0.6rem;
