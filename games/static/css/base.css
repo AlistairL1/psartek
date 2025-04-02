@@ -229,6 +229,20 @@ body {
         padding: 0 15px;
     }
 
+    /* Style spécifique pour le bouton de connexion */
+    .nav-right:not(.hamburger-menu + .nav-right) {
+        position: static;
+        width: auto;
+        height: auto;
+        background: none;
+        padding: 0;
+    }
+
+    .nav-right:not(.hamburger-menu + .nav-right) .nav-link {
+        width: auto;
+        padding: 0.5rem 1rem;
+    }
+
     .footer-content {
         flex-direction: column;
         gap: 1rem;

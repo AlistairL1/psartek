@@ -19,13 +19,8 @@
                     Vacances Psartek
                 </a>
             </div>
-            <button class="hamburger-menu" aria-label="Menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-            <div class="nav-right">
-                {% if user.is_authenticated %}
+            {% if user.is_authenticated %}
+                <div class="nav-right">
                     <a href="{% url 'game_home' %}" class="nav-link">
                         <i class="fas fa-gamepad"></i>
                         Accueil - Jeux
@@ -46,13 +41,15 @@
                         <i class="fas fa-sign-out-alt"></i>
                         Déconnexion
                     </a>
-                {% else %}
+                </div>
+            {% else %}
+                <div class="nav-right">
                     <a href="{% url 'login' %}" class="nav-link">
                         <i class="fas fa-sign-in-alt"></i>
                         Connexion
                     </a>
-                {% endif %}
-            </div>
+                </div>
+            {% endif %}
         </nav>
     </header>
 
