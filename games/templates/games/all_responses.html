@@ -1,0 +1,215 @@
+{% extends 'games/base.html' %}
+{% load static %}
+
+{% block title %}Toutes les réponses - Vacances Psartek{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/all_responses.css' %}">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+<style>
+    .responses-container {
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .responses-header {
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    .responses-header h1 {
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+    .table-container {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 1rem;
+    }
+    .dataTables_wrapper {
+        padding: 1rem;
+    }
+    .table th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        vertical-align: middle;
+    }
+    .table td {
+        vertical-align: middle;
+        padding: 0.75rem;
+    }
+    .transport-icons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+    }
+    .transport-icon {
+        font-size: 1.2rem;
+        color: #666;
+    }
+    .status-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        display: inline-block;
+        text-align: center;
+        min-width: 100px;
+    }
+    .status-pending {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    .status-verified {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    .status-rejected {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    .map-link {
+        color: #007bff;
+        text-decoration: none;
+    }
+    .map-link:hover {
+        text-decoration: underline;
+    }
+    .btn-group {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="responses-container">
+    <div class="responses-header">
+        <h1>Toutes les réponses</h1>
+        <p class="subtitle">Consultez toutes les réponses des participants</p>
+    </div>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="message {{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="table-container">
+        <table id="responsesTable" class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Participant</th>
+                    <th>Transport</th>
+                    <th>Statut Transport</th>
+                    <th>Ville</th>
+                    <th>Statut Ville</th>
+                    <th>Score Total</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for response in all_responses %}
+                <tr>
+                    <td>{{ response.user.first_name }}</td>
+                    <td>
+                        <div class="transport-icons">
+                            {% if 'bus' in response.transport_guess.transports %}
+                                <i class="fas fa-bus transport-icon" title="Bus"></i>
+                            {% endif %}
+                            {% if 'train' in response.transport_guess.transports %}
+                                <i class="fas fa-train transport-icon" title="Train"></i>
+                            {% endif %}
+                            {% if 'plane' in response.transport_guess.transports %}
+                                <i class="fas fa-plane transport-icon" title="Avion"></i>
+                            {% endif %}
+                            {% if 'car' in response.transport_guess.transports %}
+                                <i class="fas fa-car transport-icon" title="Voiture"></i>
+                            {% endif %}
+                            {% if 'ship' in response.transport_guess.transports %}
+                                <i class="fas fa-ship transport-icon" title="Bateau"></i>
+                            {% endif %}
+                            {% if 'walking' in response.transport_guess.transports %}
+                                <i class="fas fa-walking transport-icon" title="Marche"></i>
+                            {% endif %}
+                            {% if 'bike' in response.transport_guess.transports %}
+                                <i class="fas fa-bicycle transport-icon" title="Vélo"></i>
+                            {% endif %}
+                            {% if 'subway' in response.transport_guess.transports %}
+                                <i class="fas fa-subway transport-icon" title="Métro/RER"></i>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        {% if response.transport_guess.is_verified is None %}
+                            <span class="status-badge status-pending">En attente</span>
+                        {% elif response.transport_guess.is_verified %}
+                            <span class="status-badge status-verified">Validé</span>
+                        {% else %}
+                            <span class="status-badge status-rejected">Rejeté</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ response.map_guess.city_name }}</td>
+                    <td>
+                        {% if response.map_guess.is_correct is None %}
+                            <span class="status-badge status-pending">En attente</span>
+                        {% elif response.map_guess.is_correct %}
+                            <span class="status-badge status-verified">Validé</span>
+                        {% else %}
+                            <span class="status-badge status-rejected">Rejeté</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ response.total_score }}</td>
+                    <td>
+                        <a href="{% url 'evaluate_user' response.user.id %}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-check-circle"></i> Évaluer
+                        </a>
+                        <a href="{% url 'view_user_responses' response.user.id %}" class="btn btn-sm btn-info">
+                            <i class="fas fa-eye"></i> Voir
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center">Aucune réponse disponible</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#responsesTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/fr_fr.json'
+            },
+            order: [[5, 'desc']], // Trier par score total décroissant
+            pageLength: 25,
+            responsive: true,
+            dom: '<"top"lf>rt<"bottom"ip><"clear">',
+            columnDefs: [
+                { orderable: true, targets: [0, 1, 2, 3, 4, 5] },
+                { orderable: false, targets: [6] }
+            ]
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %} 

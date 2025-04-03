@@ -2,32 +2,6 @@
 {% load static %}
 
 {% block title %}Résultats - Vacances Psartek{% endblock %}
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/results.css' %}">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<style>
-    .custom-marker {
-        color: #FF5733;
-        font-size: 25px;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-    }
-    .zoom-button {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        z-index: 1000;
-        background: white;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        padding: 8px 12px;
-        cursor: pointer;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-    .zoom-button:hover {
-        background: #f8f8f8;
-    }
-</style>
-{% endblock %}
 
 {% block content %}
 <div class="results-container">
@@ -71,38 +45,31 @@
                 <h2>Score Total - {{ user.first_name }}</h2>
             </div>
             <div class="score-content">
-                {% if map_guess is not None and transport_guess is not None %}
-                    <div class="main-score">{{ total_score }}</div>
-                    <div class="score-breakdown">
-                        <div class="score-item">
-                            <span class="label">Transport</span>
-                            <span class="value">{{ transport_score }}</span>
-                            {% if transport_guess %}
-                                {% if transport_guess.is_verified is False %}
-                                    <i class="fas fa-marker pending-icon" title="En attente de confirmation"></i>
-                                {% else %}
-                                    <i class="fas fa-marker valid-icon" title="Réponse confirmée"></i>
-                                {% endif %}
+                <div class="main-score">{{ total_score }}</div>
+                <div class="score-breakdown">
+                    <div class="score-item">
+                        <span class="label">Transport</span>
+                        <span class="value">{{ transport_score }}</span>
+                        {% if transport_guess %}
+                            {% if transport_guess.is_verified is None %}
+                                <i class="fas fa-hourglass-half pending-icon" title="En attente de confirmation"></i>
+                            {% else %}
+                                <i class="fas fa-check-circle valid-icon" title="Réponse confirmée"></i>
                             {% endif %}
-                        </div>
-                        <div class="score-item">
-                            <span class="label">Carte</span>
-                            <span class="value">{{ map_score }}</span>
-                            {% if map_guess %}
-                                {% if map_guess.is_verified is False %}
-                                    <i class="fas fa-hourglass-half pending-icon" title="En attente de confirmation"></i>
-                                {% else %}
-                                    <i class="fas fa-check-circle valid-icon" title="Réponse confirmée"></i>
-                                {% endif %}
+                        {% endif %}
+                    </div>
+                    <div class="score-item">
+                        <span class="label">Carte</span>
+                        <span class="value">{{ map_score }}</span>
+                        {% if map_guess %}
+                            {% if map_guess.is_correct is None %}
+                                <i class="fas fa-hourglass-half pending-icon" title="En attente de confirmation"></i>
+                            {% else %}
+                                <i class="fas fa-check-circle valid-icon" title="Réponse confirmée"></i>
                             {% endif %}
-                        </div>
+                        {% endif %}
                     </div>
-                {% else %}
-                    <div class="empty-state">
-                        <i class="fas fa-clock"></i>
-                        <p>Vous n'avez pas encore participé aux jeux</p>
-                    </div>
-                {% endif %}
+                </div>
             </div>
         </div>
 
@@ -175,19 +142,12 @@
                 <h2>GeoGuessr</h2>
             </div>
             <div class="score-content">
-                {% if map_guess %}
-                    <div class="map-result">
-                        <div class="city-name"> {{ map_guess.city_name }} </div>
-                        <div class="map-container">
-                            <div id="map" class="result-map"></div>
-                        </div>
+                <div class="map-result">
+                    <div class="city-name">{{ map_guess.city_name }}</div>
+                    <div class="map-container">
+                        <div id="map" class="result-map"></div>
                     </div>
-                {% else %}
-                    <div class="empty-state" style="text-align: center;">
-                        <i class="fas fa-info-circle"></i>
-                        <p>Vous n'avez pas encore participé à ce jeu</p>
-                    </div>
-                {% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -201,7 +161,11 @@
                     <div class="rank">{{ forloop.counter }}</div>
                     <div class="user-info">
                         <span class="username">
+                            {% if not 'Technicien' in user.groups.all|stringformat:"s" %}
                                 {{ user.first_name }}
+                            {% else %}
+                                Anonyme
+                            {% endif %}
                         </span>
                         <span class="score">{{ user.total_score }} points</span>
                     </div>
@@ -217,86 +181,67 @@
 </div>
 
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Coordonnées de la ville devinée
-        const guessLat = {{ map_guess.latitude }};
-        const guessLng = {{ map_guess.longitude }};
-        const cityName = {{ map_guess.city_name }};
+    
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+ 
+<link rel="stylesheet" href="{% static 'css/tempo.css' %}">
+<style>
+    .custom-marker {
+        color: #FF5733;
+        font-size: 25px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+</style>
 
-        const map = L.map('map', {
-            center: [46.603354, 1.888334], // Centre de la France
-            zoom: 4,
-            zoomControl: true,
-            minZoom: 4,
-            maxZoom: 12,
-            dragging: true,
-            scrollWheelZoom: true,
-            doubleClickZoom: true,
-            boxZoom: false,
-            keyboard: false,
-            tap: false
+{% block extra_js %}
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Coordonnées de la proposition de l'utilisateur
+            const userLat = {{ map_guess.latitude }};
+            const userLng = {{ map_guess.longitude }};
+
+            // Attendre que le conteneur de la carte soit disponible
+            const mapContainer = document.getElementById('map');
+            if (!mapContainer) return;
+
+            // Initialiser la carte
+            const map = L.map('map', {
+                center: [userLat, userLng],
+                zoom: 13,
+                zoomControl: false,
+                dragging: false,
+                scrollWheelZoom: false,
+                doubleClickZoom: false,
+                boxZoom: false,
+                keyboard: false,
+                tap: false,
+                attributionControl: false
+            });
+
+            // Ajouter les tuiles de la carte
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Forcer un redimensionnement de la carte
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 100);
+
+            // Ajouter un marqueur pour la proposition de l'utilisateur
+            L.marker([userLat, userLng], {
+                icon: L.divIcon({
+                    className: 'custom-marker',
+                    html: '<i class="fas fa-map-marker-alt"></i>',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41]
+                })
+            }).addTo(map)
+            .bindPopup('{{ map_guess.city_name }}')
+            .openPopup();
         });
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-
-        // Ajouter un marqueur pour la ville devinée
-        const marker = L.marker([guessLat, guessLng], {
-            icon: L.divIcon({
-                className: 'custom-marker',
-                html: '<i class="fas fa-map-marker-alt"></i>',
-                iconSize: [25, 41],
-                iconAnchor: [12, 41]
-            })
-        }).addTo(map);
-
-        // Ajouter le bouton crosshairs sous les contrôles de zoom
-        const crosshairsButton = L.Control.extend({
-            options: {
-                position: 'topleft'
-            },
-            onAdd: function(map) {
-                const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
-                const button = L.DomUtil.create('a', 'leaflet-control-crosshairs', container);
-                button.innerHTML = '<i class="fas fa-crosshairs"></i>';
-                button.href = '#';
-                button.title = 'Centrer sur le marqueur';
-                
-                L.DomEvent.on(button, 'click', function(e) {
-                    L.DomEvent.preventDefault(e);
-                    map.setView([guessLat, guessLng], 12);
-                });
-                
-                return container;
-            }
-        });
-
-        // Ajouter le bouton maison pour revenir à la vue initiale
-        const homeButton = L.Control.extend({
-            options: {
-                position: 'topright'
-            },
-            onAdd: function(map) {
-                const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
-                const button = L.DomUtil.create('a', 'leaflet-control-home', container);
-                button.innerHTML = '<i class="fas fa-home"></i>';
-                button.href = '#';
-                button.title = 'Vue initiale';
-                
-                L.DomEvent.on(button, 'click', function(e) {
-                    L.DomEvent.preventDefault(e);
-                    map.setView([46.603354, 1.888334], 4);
-                });
-                
-                return container;
-            }
-        });
-        
-        map.addControl(new crosshairsButton());
-        map.addControl(new homeButton());
-    });
-</script>
+    </script>
+{% endblock %}
 {% endblock %}

@@ -27,6 +27,13 @@
     box-sizing: border-box;
 }
 
+body {
+    background-color: var(--background);
+    color: var(--text-color);
+    font-family: system-ui, -apple-system, sans-serif;
+    line-height: 1.5;
+}
+
 /* Conteneur principal */
 .results-container {
     max-width: 1200px;
@@ -211,20 +218,54 @@
     box-shadow: var(--shadow);
 }
 
-.transport-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
 .transport-item i {
     font-size: 2rem;
-    margin-bottom: 0.5rem;
     color: var(--primary-color);
 }
 
-.transport-item span {
-    font-size: 0.9rem;
-    color: var(--text-color);
+/* Résultats de la carte */
+.map-result {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.city-name {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    text-align: center;
+    margin-bottom: 1rem;
+    text-transform: capitalize;
+}
+
+.result-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius);
+    font-weight: 500;
+    margin: 0 auto;
+}
+
+.result-status.correct {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #86efac;
+}
+
+.result-status.incorrect {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
+
+.score-details {
+    display: flex;
+    justify-content: center;
+    margin: 1rem 0;
 }
 
 .score-item {
@@ -249,16 +290,6 @@
     color: var(--primary-color);
 }
 
-/* Carte GeoGuessr */
-.city-name {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--primary-dark);
-    text-align: center;
-    margin-bottom: 1rem;
-    text-transform: capitalize;
-}
-
 /* Carte */
 .map-container {
     margin-top: 1rem;
@@ -277,6 +308,39 @@
     z-index: 1;
 }
 
+/* Styles Leaflet */
+.leaflet-container {
+    background: transparent !important;
+    height: 100% !important;
+    width: 100% !important;
+}
+
+.leaflet-control-zoom {
+    display: none !important;
+}
+
+.leaflet-popup-content-wrapper {
+    background: var(--primary-gradient);
+    color: white;
+    border-radius: var(--radius);
+    padding: 0.5rem;
+}
+
+.leaflet-popup-tip {
+    background: var(--primary-color);
+}
+
+.leaflet-popup-content {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+.leaflet-tile {
+    opacity: 0.8;
+}
+
 /* États vides */
 .empty-state {
     display: flex;
@@ -287,7 +351,6 @@
     padding: 2rem;
     text-align: center;
     color: var(--text-light);
-    width: 100%;
 }
 
 .empty-state i {
@@ -361,7 +424,6 @@
     color: var(--text-light);
 }
 
-
 /* Animations */
 @keyframes hourglass {
     0% { transform: rotate(0deg); }
@@ -405,9 +467,21 @@
     .admin-panel {
         flex-direction: column;
     }
+
     .score-item {
         padding: 0.75rem 1.5rem;
     }
-}
 
+    .map-result {
+        gap: 1rem;
+    }
 
+    .city-name {
+        font-size: 1.75rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .map-container {
+        height: 250px;
+    }
+} 

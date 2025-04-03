@@ -259,3 +259,107 @@ def evaluate_user(request, user_id):
 def logout_view(request):
     logout(request)
     return redirect('users_home')
+
+
+def tempo_view(request):
+    # Récupérer les réponses de l'utilisateur
+    transport_guess = TransportGuess.objects.filter(user=request.user).first()
+    map_guess = MapGuess.objects.filter(user=request.user).first()
+
+    # Récupérer le classement
+    leaderboard = []
+    # Exclure les utilisateurs du groupe Technicien
+    users = User.objects.exclude(groups__name='Technicien')
+    for user in users:
+        transport_guess_user = TransportGuess.objects.filter(user=user).first()
+        map_guess_user = MapGuess.objects.filter(user=user).first()
+
+        # Calculer le score total
+        transport_score = transport_guess_user.score if transport_guess_user and transport_guess_user.score is not None else 0
+        map_score = map_guess_user.score if map_guess_user and map_guess_user.score is not None else 0
+        total_score = transport_score + map_score
+
+        leaderboard.append({
+            'username': user.username,
+            'first_name': user.first_name,
+            'total_score': total_score,
+            'is_current_user': user == request.user
+        })
+
+    # Trier le classement par score décroissant
+    leaderboard.sort(key=lambda x: x['total_score'], reverse=True)
+
+    # Si l'utilisateur est un organisateur, ajouter les données supplémentaires
+    if is_organizer(request.user):
+        # Récupérer tous les utilisateurs qui ont participé (exclure les techniciens)
+        all_users = User.objects.exclude(groups__name='Technicien').filter(
+            transportguess__isnull=False,
+            mapguess__isnull=False
+        ).distinct()
+
+        # Récupérer toutes les réponses pour l'évaluation
+        all_responses = []
+        for user in all_users:
+            transport_guess = TransportGuess.objects.filter(user=user).first()
+            map_guess = MapGuess.objects.filter(user=user).first()
+            evaluation = GameEvaluation.objects.filter(user=user).first()
+
+            all_responses.append({
+                'user': user,
+                'transport_guess': transport_guess,
+                'map_guess': map_guess,
+                'evaluation': evaluation
+            })
+
+        return render(request, 'games/tempo.html', {
+            'transport_guess': transport_guess,
+            'map_guess': map_guess,
+            'leaderboard': leaderboard,
+            'is_organizer': True,
+            'all_responses': all_responses
+        })
+
+    # Pour les utilisateurs normaux, retourner uniquement leurs réponses et le classement
+    return render(request, 'games/tempo.html', {
+        'transport_guess': transport_guess,
+        'map_guess': map_guess,
+        'leaderboard': leaderboard,
+        'is_organizer': False
+    })
+
+@login_required
+def all_responses(request):
+    # Vérifier si l'utilisateur est un organisateur
+    if not request.user.groups.filter(name='Organisateur').exists():
+        messages.error(request, "Vous n'avez pas les permissions nécessaires pour accéder à cette page.")
+        return redirect('home')
+    
+    # Récupérer toutes les réponses avec les informations nécessaires
+    all_responses = []
+    users = User.objects.all()
+    
+    for user in users:
+        transport_guess = TransportGuess.objects.filter(user=user).first()
+        map_guess = MapGuess.objects.filter(user=user).first()
+        
+        if transport_guess or map_guess:
+            total_score = 0
+            if transport_guess and transport_guess.is_verified:
+                total_score += transport_guess.score
+            if map_guess and map_guess.is_correct:
+                total_score += map_guess.score
+                
+            all_responses.append({
+                'user': user,
+                'transport_guess': transport_guess,
+                'map_guess': map_guess,
+                'total_score': total_score
+            })
+    
+    # Trier les réponses par score total décroissant
+    all_responses.sort(key=lambda x: x['total_score'], reverse=True)
+    
+    context = {
+        'all_responses': all_responses
+    }
+    return render(request, 'games/all_responses.html', context)

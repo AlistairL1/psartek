@@ -1,4 +1,6 @@
 psartek_website/__pycache__/
+users/__pycache__/
+games/__pycache__/
 # Ignore Python bytecode files
 __pycache__/
 *.pyc
@@ -28,6 +30,3 @@ coverage/
 *.swp
 *~
 .DS_Store
-
-users/__pycache__/
-games/__pycache__/

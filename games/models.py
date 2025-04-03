@@ -16,9 +16,7 @@ class TransportGuess(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     transports = models.JSONField(default=list)  # Liste des transports sélectionnés
-    is_verified = models.BooleanField(null=True, blank=True)
-    score = models.IntegerField(null=True, blank=True)
-    feedback = models.TextField(blank=True)
+    is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -50,10 +48,7 @@ class MapGuess(models.Model):
     latitude = models.FloatField()
     longitude = models.FloatField()
     city_name = models.CharField(max_length=200, blank=True, null=True)
-    is_correct = models.BooleanField(null=True, blank=True)
-    score = models.IntegerField(null=True, blank=True)
-    distance_to_target = models.FloatField(null=True, blank=True)
-    feedback = models.TextField(blank=True)
+    is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
