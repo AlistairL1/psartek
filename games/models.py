@@ -18,6 +18,7 @@ class TransportGuess(models.Model):
     transports = models.JSONField(default=list)  # Liste des transports sélectionnés
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    total_score = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.user.username} - {', '.join(self.get_transports_display())}"
@@ -50,6 +51,7 @@ class MapGuess(models.Model):
     city_name = models.CharField(max_length=200, blank=True, null=True)
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(default=timezone.now)
+    total_score = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.user.username} - {self.city_name or 'Ville inconnue'}"
@@ -57,9 +59,7 @@ class MapGuess(models.Model):
 class GameEvaluation(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     evaluated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='evaluations_made')
-    poll_rank = models.IntegerField(null=True, blank=True)
-    transport_rank = models.IntegerField(null=True, blank=True) 
-    total_rank = models.IntegerField(null=True, blank=True)
+    total_score = models.IntegerField(null=True, blank=True)
     evaluated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):

@@ -1,108 +1,32 @@
 {% extends 'games/base.html' %}
 {% load static %}
 
-{% block title %}Résultats - Vacances Psartek{% endblock %}
+{% block title %}Réponses de {{ viewed_user.first_name }}{% endblock %}
+
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/results.css' %}">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<style>
-    .custom-marker {
-        color: #FF5733;
-        font-size: 25px;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-    }
-    .zoom-button {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        z-index: 1000;
-        background: white;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        padding: 8px 12px;
-        cursor: pointer;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-    .zoom-button:hover {
-        background: #f8f8f8;
-    }
-</style>
+    <link rel="stylesheet" href="{% static 'css/view_user_responses.css' %}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 {% endblock %}
 
 {% block content %}
 <div class="results-container">
     <div class="results-header">
-        <h1>Résultats</h1>
-        {% if messages %}
-            <div class="messages">
-                {% for message in messages %}
-                    <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
+        <h1>Réponses de {{ viewed_user.first_name }}</h1>
+        <a href="{% url 'all_responses' %}" class="admin-btn secondary">
+            <i class="fas fa-arrow-left"></i>
+            Retour à la liste
+        </a>
     </div>
-
-    {% if user.is_authenticated %}
-        <div class="admin-panel">
-            {% for group in user.groups.all %}
-                {% if group.name == 'Organisateur' %}
-                    <div class="admin-buttons">
-                        <a href="{% url 'results' %}" class="admin-btn primary">
-                            <i class="fas fa-chart-bar"></i>
-                            Voir mes résultats
-                        </a>
-                        <a href="{% url 'all_responses' %}" class="admin-btn secondary">
-                            <i class="fas fa-star"></i>
-                            Évaluer les résultats
-                        </a>
-                    </div>
-                {% endif %}
-            {% endfor %}
-        </div>
-    {% endif %}
 
     <div class="results-grid">
         <!-- Score Total -->
         <div class="score-card total-score">
             <div class="score-header">
                 <i class="fas fa-trophy"></i>
-                <h2>Score Total - {{ user.first_name }}</h2>
+                <h2>Score Total</h2>
             </div>
             <div class="score-content">
-                {% if map_guess is not None and transport_guess is not None %}
-                    <div class="main-score">{{ total_score }}</div>
-                    <div class="score-breakdown">
-                        <div class="score-item">
-                            <span class="label">Transport</span>
-                            <span class="value">{{ transport_score }}</span>
-                            {% if transport_guess %}
-                                {% if transport_guess.is_verified is False %}
-                                    <i class="fas fa-marker pending-icon" title="En attente de confirmation"></i>
-                                {% else %}
-                                    <i class="fas fa-marker valid-icon" title="Réponse confirmée"></i>
-                                {% endif %}
-                            {% endif %}
-                        </div>
-                        <div class="score-item">
-                            <span class="label">Carte</span>
-                            <span class="value">{{ map_score }}</span>
-                            {% if map_guess %}
-                                {% if map_guess.is_verified is False %}
-                                    <i class="fas fa-hourglass-half pending-icon" title="En attente de confirmation"></i>
-                                {% else %}
-                                    <i class="fas fa-check-circle valid-icon" title="Réponse confirmée"></i>
-                                {% endif %}
-                            {% endif %}
-                        </div>
-                    </div>
-                {% else %}
-                    <div class="empty-state">
-                        <i class="fas fa-clock"></i>
-                        <p>Vous n'avez pas encore participé aux jeux</p>
-                    </div>
-                {% endif %}
+                <div class="main-score">{{ total_score }}</div>
             </div>
         </div>
 
@@ -111,9 +35,6 @@
             <div class="score-header">
                 <i class="fas fa-bus"></i>
                 <h2>Sondage Transport</h2>
-                {% if transport_guess_list and transport_guess_list.0.is_verified is None %}
-                    <i class="fas fa-hourglass-half pending-icon" title="Attente"></i>
-                {% endif %}
             </div>
             <div class="score-content">
                 {% if transport_guess %}
@@ -162,7 +83,7 @@
                 {% else %}
                     <div class="empty-state">
                         <i class="fas fa-info-circle"></i>
-                        <p>Vous n'avez pas encore participé à ce jeu</p>
+                        <p>Pas de réponse pour le sondage transport</p>
                     </div>
                 {% endif %}
             </div>
@@ -177,73 +98,42 @@
             <div class="score-content">
                 {% if map_guess %}
                     <div class="map-result">
-                        <div class="city-name"> {{ map_guess.city_name }} </div>
+                        <div class="city-name">{{ map_guess.city_name }}</div>
                         <div class="map-container">
                             <div id="map" class="result-map"></div>
                         </div>
                     </div>
                 {% else %}
-                    <div class="empty-state" style="text-align: center;">
+                    <div class="empty-state">
                         <i class="fas fa-info-circle"></i>
-                        <p>Vous n'avez pas encore participé à ce jeu</p>
+                        <p>Pas de réponse pour GeoGuessr</p>
                     </div>
                 {% endif %}
             </div>
         </div>
     </div>
-
-    <!-- Classement -->
-    <div class="leaderboard-section">
-        <h2>Classement</h2>
-        <div class="leaderboard">
-            {% for user in leaderboard %}
-                <div class="leaderboard-item {% if user.is_current_user %}current-user{% endif %}">
-                    <div class="rank">{{ forloop.counter }}</div>
-                    <div class="user-info">
-                        <span class="username">
-                                {{ user.first_name }}
-                        </span>
-                        <span class="score">{{ user.total_score }} points</span>
-                    </div>
-                </div>
-            {% empty %}
-                <div class="empty-state">
-                    <i class="fas fa-trophy"></i>
-                    <p>Aucun résultat disponible pour le moment</p>
-                </div>
-            {% endfor %}
-        </div>
-    </div>
 </div>
 
-
+{% if map_guess %}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Coordonnées de la ville devinée
         const guessLat = {{ map_guess.latitude }};
         const guessLng = {{ map_guess.longitude }};
         const cityName = "{{ map_guess.city_name }}";
 
         const map = L.map('map', {
-            center: [46.603354, 1.888334], // Centre de la France
+            center: [46.603354, 1.888334],
             zoom: 4,
             zoomControl: true,
             minZoom: 4,
-            maxZoom: 12,
-            dragging: true,
-            scrollWheelZoom: true,
-            doubleClickZoom: true,
-            boxZoom: false,
-            keyboard: false,
-            tap: false
+            maxZoom: 12
         });
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Ajouter un marqueur pour la ville devinée
         const marker = L.marker([guessLat, guessLng], {
             icon: L.divIcon({
                 className: 'custom-marker',
@@ -253,11 +143,8 @@
             })
         }).addTo(map);
 
-        // Ajouter le bouton crosshairs sous les contrôles de zoom
         const crosshairsButton = L.Control.extend({
-            options: {
-                position: 'topleft'
-            },
+            options: { position: 'topleft' },
             onAdd: function(map) {
                 const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
                 const button = L.DomUtil.create('a', 'leaflet-control-crosshairs', container);
@@ -274,11 +161,8 @@
             }
         });
 
-        // Ajouter le bouton maison pour revenir à la vue initiale
         const homeButton = L.Control.extend({
-            options: {
-                position: 'topright'
-            },
+            options: { position: 'topright' },
             onAdd: function(map) {
                 const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
                 const button = L.DomUtil.create('a', 'leaflet-control-home', container);
@@ -299,4 +183,5 @@
         map.addControl(new homeButton());
     });
 </script>
-{% endblock %}
+{% endif %}
+{% endblock %} 

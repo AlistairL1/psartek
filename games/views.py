@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import logout
 from django.urls import reverse
 from math import radians, sin, cos, sqrt, atan2
+from django.http import JsonResponse
 
 def is_organizer(user):
     return user.is_staff or user.groups.filter(name='Organisateur').exists()
@@ -110,13 +111,10 @@ def results_view(request):
     # Exclure les utilisateurs du groupe Technicien
     users = User.objects.exclude(groups__name='Technicien')
     for user in users:
-        transport_guess_user = TransportGuess.objects.filter(user=user).first()
         map_guess_user = MapGuess.objects.filter(user=user).first()
         
-        # Calculer le score total
-        transport_score = transport_guess_user.score if transport_guess_user and transport_guess_user.score is not None else 0
-        map_score = map_guess_user.score if map_guess_user and map_guess_user.score is not None else 0
-        total_score = transport_score + map_score
+        # Utiliser le total_score de MapGuess
+        total_score = map_guess_user.total_score if map_guess_user and map_guess_user.is_verified else 0
         
         leaderboard.append({
             'username': user.username,
@@ -271,13 +269,10 @@ def tempo_view(request):
     # Exclure les utilisateurs du groupe Technicien
     users = User.objects.exclude(groups__name='Technicien')
     for user in users:
-        transport_guess_user = TransportGuess.objects.filter(user=user).first()
         map_guess_user = MapGuess.objects.filter(user=user).first()
 
-        # Calculer le score total
-        transport_score = transport_guess_user.score if transport_guess_user and transport_guess_user.score is not None else 0
-        map_score = map_guess_user.score if map_guess_user and map_guess_user.score is not None else 0
-        total_score = transport_score + map_score
+        # Utiliser le total_score de MapGuess
+        total_score = map_guess_user.total_score if map_guess_user and map_guess_user.is_verified else 0
 
         leaderboard.append({
             'username': user.username,
@@ -328,26 +323,75 @@ def tempo_view(request):
     })
 
 @login_required
+@user_passes_test(is_organizer)
 def all_responses(request):
     # Vérifier si l'utilisateur est un organisateur
     if not request.user.groups.filter(name='Organisateur').exists():
         messages.error(request, "Vous n'avez pas les permissions nécessaires pour accéder à cette page.")
         return redirect('home')
     
-    # Récupérer toutes les réponses avec les informations nécessaires
+    # Gérer la soumission du formulaire
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')
+        user = get_object_or_404(User, id=user_id)
+        
+        try:
+            transport_guess = TransportGuess.objects.get(user=user)
+            map_guess = MapGuess.objects.get(user=user)
+            
+            # Récupérer le score total
+            total_score = int(request.POST.get('total_score', 0))
+            
+            # Mettre à jour TransportGuess
+            transport_guess.is_verified = request.POST.get('transport_verified') == 'on'
+            transport_guess.total_score = total_score
+            transport_guess.save()
+            
+            # Mettre à jour MapGuess
+            map_guess.is_verified = request.POST.get('city_verified') == 'on'
+            map_guess.total_score = total_score
+            map_guess.save()
+            
+            # Créer ou mettre à jour GameEvaluation
+            evaluation, created = GameEvaluation.objects.update_or_create(
+                user=user,
+                defaults={
+                    'evaluated_by': request.user,
+                    'feedback': request.POST.get('feedback', '')
+                }
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Évaluation enregistrée avec succès',
+                'total_score': total_score
+            })
+            
+        except (TransportGuess.DoesNotExist, MapGuess.DoesNotExist):
+            return JsonResponse({
+                'success': False,
+                'message': 'Réponses non trouvées pour cet utilisateur'
+            }, status=404)
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=500)
+    
+    # Affichage normal de la page (GET request)
     all_responses = []
     users = User.objects.all()
     
     for user in users:
         transport_guess = TransportGuess.objects.filter(user=user).first()
         map_guess = MapGuess.objects.filter(user=user).first()
-        
+
         if transport_guess or map_guess:
             total_score = 0
             if transport_guess and transport_guess.is_verified:
-                total_score += transport_guess.score
-            if map_guess and map_guess.is_correct:
-                total_score += map_guess.score
+                total_score = transport_guess.total_score
+            elif map_guess and map_guess.is_verified:
+                total_score = map_guess.total_score
                 
             all_responses.append({
                 'user': user,
@@ -363,3 +407,80 @@ def all_responses(request):
         'all_responses': all_responses
     }
     return render(request, 'games/all_responses.html', context)
+
+
+@login_required
+@user_passes_test(is_organizer)
+def evaluate_response(request, user_id):
+    if request.method == 'POST':
+        user = get_object_or_404(User, id=user_id)
+        transport_guess = TransportGuess.objects.get(user=user)
+        map_guess = MapGuess.objects.get(user=user)
+        
+        # Calculer le score total
+        total_score = int(request.POST.get('total_score', 0))
+        
+        # Répartir le score total entre transport et ville
+        transport_score = total_score // 2
+        map_score = total_score - transport_score
+        
+        # Mettre à jour TransportGuess
+        transport_guess.is_verified = request.POST.get('transport_verified') == 'on'
+        transport_guess.score = transport_score
+        transport_guess.save()
+        
+        # Mettre à jour MapGuess
+        map_guess.is_verified = request.POST.get('city_verified') == 'on'
+        map_guess.is_correct = request.POST.get('city_verified') == 'on'
+        map_guess.score = map_score
+        map_guess.save()
+        
+        # Créer ou mettre à jour GameEvaluation
+        evaluation, created = GameEvaluation.objects.update_or_create(
+            user=user,
+            defaults={
+                'evaluated_by': request.user,
+                'feedback': request.POST.get('feedback', '')
+            }
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Évaluation enregistrée avec succès',
+            'transport_score': transport_score,
+            'map_score': map_score,
+            'total_score': total_score
+        })
+    
+    return JsonResponse({
+        'success': False,
+        'message': 'Méthode non autorisée'
+    }, status=405)
+
+@login_required
+@user_passes_test(is_organizer)
+def view_user_responses(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    
+    try:
+        transport_guess = TransportGuess.objects.get(user=user)
+        map_guess = MapGuess.objects.get(user=user)
+        evaluation = GameEvaluation.objects.filter(user=user).first()
+    except (TransportGuess.DoesNotExist, MapGuess.DoesNotExist):
+        messages.error(request, 'Cet utilisateur n\'a pas participé aux deux jeux.')
+        return redirect('all_responses')
+    
+    total_score = 0
+    if transport_guess and transport_guess.is_verified:
+        total_score += transport_guess.score
+    if map_guess and map_guess.is_verified:
+        total_score += map_guess.score
+    
+    context = {
+        'user': user,
+        'transport_guess': transport_guess,
+        'map_guess': map_guess,
+        'evaluation': evaluation,
+        'total_score': total_score
+    }
+    return render(request, 'games/view_user_responses.html', context)

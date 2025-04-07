@@ -6,87 +6,8 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/all_responses.css' %}">
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
-<style>
-    .responses-container {
-        padding: 2rem;
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-    .responses-header {
-        margin-bottom: 2rem;
-        text-align: center;
-    }
-    .responses-header h1 {
-        color: #333;
-        margin-bottom: 0.5rem;
-    }
-    .table-container {
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        padding: 1rem;
-    }
-    .dataTables_wrapper {
-        padding: 1rem;
-    }
-    .table th {
-        background-color: #f8f9fa;
-        font-weight: 600;
-        vertical-align: middle;
-    }
-    .table td {
-        vertical-align: middle;
-        padding: 0.75rem;
-    }
-    .transport-icons {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: center;
-    }
-    .transport-icon {
-        font-size: 1.2rem;
-        color: #666;
-    }
-    .status-badge {
-        padding: 0.25rem 0.5rem;
-        border-radius: 4px;
-        font-size: 0.875rem;
-        font-weight: 500;
-        display: inline-block;
-        text-align: center;
-        min-width: 100px;
-    }
-    .status-pending {
-        background-color: #fff3cd;
-        color: #856404;
-    }
-    .status-verified {
-        background-color: #d4edda;
-        color: #155724;
-    }
-    .status-rejected {
-        background-color: #f8d7da;
-        color: #721c24;
-    }
-    .map-link {
-        color: #007bff;
-        text-decoration: none;
-    }
-    .map-link:hover {
-        text-decoration: underline;
-    }
-    .btn-group {
-        display: flex;
-        gap: 0.5rem;
-        justify-content: center;
-    }
-    .btn-sm {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.875rem;
-    }
-</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 {% endblock %}
 
 {% block content %}
@@ -106,6 +27,25 @@
     </div>
     {% endif %}
 
+    {% if user.is_authenticated %}
+        <div class="admin-panel">
+            {% for group in user.groups.all %}
+                {% if group.name == 'Organisateur' %}
+                    <div class="admin-buttons">
+                        <a href="{% url 'results' %}" class="admin-btn primary">
+                            <i class="fas fa-chart-bar"></i>
+                            Voir mes résultats
+                        </a>
+                        <a href="{% url 'all_responses' %}" class="admin-btn secondary">
+                            <i class="fas fa-star"></i>
+                            Évaluer les résultats
+                        </a>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
     <div class="table-container">
         <table id="responsesTable" class="table table-striped">
             <thead>
@@ -116,7 +56,7 @@
                     <th>Ville</th>
                     <th>Statut Ville</th>
                     <th>Score Total</th>
-                    <th>Actions</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -152,32 +92,27 @@
                         </div>
                     </td>
                     <td>
-                        {% if response.transport_guess.is_verified is None %}
+                        {% if response.transport_guess.is_verified is False %}
                             <span class="status-badge status-pending">En attente</span>
                         {% elif response.transport_guess.is_verified %}
-                            <span class="status-badge status-verified">Validé</span>
-                        {% else %}
-                            <span class="status-badge status-rejected">Rejeté</span>
+                            <span class="status-badge status-verified">Vérifié</span>
                         {% endif %}
                     </td>
                     <td>{{ response.map_guess.city_name }}</td>
                     <td>
-                        {% if response.map_guess.is_correct is None %}
+                        {% if response.map_guess.is_verified is False %}
                             <span class="status-badge status-pending">En attente</span>
-                        {% elif response.map_guess.is_correct %}
-                            <span class="status-badge status-verified">Validé</span>
-                        {% else %}
-                            <span class="status-badge status-rejected">Rejeté</span>
+                        {% elif response.map_guess.is_verified %}
+                            <span class="status-badge status-verified">Vérifié</span>
                         {% endif %}
                     </td>
                     <td>{{ response.total_score }}</td>
                     <td>
-                        <a href="{% url 'evaluate_user' response.user.id %}" class="btn btn-sm btn-primary">
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-primary" onclick="openResponseModal('{{ response.user.first_name }}', {{ response.user.id }}, '{{ response.transport_guess.transports|join:', ' }}', '{{ response.map_guess.city_name }}', {{ response.total_score }}, this)">
                             <i class="fas fa-check-circle"></i> Évaluer
-                        </a>
-                        <a href="{% url 'view_user_responses' response.user.id %}" class="btn btn-sm btn-info">
-                            <i class="fas fa-eye"></i> Voir
-                        </a>
+                            </button>
+                        </div>
                     </td>
                 </tr>
                 {% empty %}
@@ -190,26 +125,273 @@
     </div>
 </div>
 
-{% block extra_js %}
+<!-- Modal Unique -->
+<div id="responseModal" class="modal">
+    <div class="modal-header">
+        <h2><i class="fas fa-clipboard-check"></i> Réponses de <span id="modalUserName"></span></h2>
+        <button class="modal-close" onclick="closeModal('responseModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="evalForm" method="POST">
+        {% csrf_token %}
+        <div class="modal-body">
+            <div id="successMessage" class="alert alert-success" style="display: none;">
+                <i class="fas fa-check-circle"></i> Évaluation enregistrée avec succès !
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-bus"></i> Transport</h3>
+                <div id="modalTransports" class="transport-icons"></div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="transportVerified" name="transport_verified">
+                    <label for="transportVerified">Vérifié</label>
+                </div>
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-map-marker-alt"></i> Ville</h3>
+                <div id="modalCity" class="city-name"></div>
+                <div id="map" class="map-container"></div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="cityVerified" name="city_verified">
+                    <label for="cityVerified">Vérifié</label>
+                </div>
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-star"></i> Score Total</h3>
+                <div class="score-input-group">
+                    <input type="number" class="form-control score-input" name="total_score" id="totalScore" min="0" max="100" value="0">
+                    <div class="score-buttons">
+                        <button type="button" class="btn btn-sm btn-info" onclick="closeModal('responseModal')">
+                            <i class="fas fa-times"></i> Annuler
+                        </button>
+                        <button type="submit" class="btn btn-sm btn-primary">
+                            <i class="fas fa-check"></i> Valider
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div id="modalOverlay" class="modal-overlay" onclick="closeAllModals()"></div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    $(document).ready(function() {
-        $('#responsesTable').DataTable({
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/fr_fr.json'
-            },
-            order: [[5, 'desc']], // Trier par score total décroissant
-            pageLength: 25,
-            responsive: true,
-            dom: '<"top"lf>rt<"bottom"ip><"clear">',
-            columnDefs: [
-                { orderable: true, targets: [0, 1, 2, 3, 4, 5] },
-                { orderable: false, targets: [6] }
-            ]
+    let map;
+    let marker;
+    let currentRow;
+
+    function openResponseModal(userName, userId, transports, city, score, row) {
+        currentRow = row.closest('tr'); // Get the parent row
+        document.getElementById('modalUserName').textContent = userName;
+        document.getElementById('evalForm').action = "{% url 'all_responses' %}";
+        // Ajouter un champ caché pour l'ID de l'utilisateur
+        let userIdInput = document.createElement('input');
+        userIdInput.type = 'hidden';
+        userIdInput.name = 'user_id';
+        userIdInput.value = userId;
+        document.getElementById('evalForm').appendChild(userIdInput);
+        
+        document.getElementById('modalCity').textContent = city;
+        document.getElementById('totalScore').value = score;
+        
+        // Set initial checkbox states based on current status
+        const transportStatus = currentRow.querySelector('td:nth-child(3) .status-badge').textContent.trim();
+        const cityStatus = currentRow.querySelector('td:nth-child(5) .status-badge').textContent.trim();
+        
+        document.getElementById('transportVerified').checked = transportStatus === 'Vérifié';
+        document.getElementById('cityVerified').checked = cityStatus === 'Vérifié';
+        
+        // Afficher les icônes de transport
+        const transportsContainer = document.getElementById('modalTransports');
+        transportsContainer.innerHTML = '';
+        transports.split(', ').forEach(transport => {
+            let iconClass = '';
+            switch(transport.trim()) {
+                case 'bus':
+                    iconClass = 'fa-bus';
+                    break;
+                case 'train':
+                    iconClass = 'fa-train';
+                    break;
+                case 'plane':
+                    iconClass = 'fa-plane';
+                    break;
+                case 'car':
+                    iconClass = 'fa-car';
+                    break;
+                case 'ship':
+                    iconClass = 'fa-ship';
+                    break;
+                case 'walking':
+                    iconClass = 'fa-walking';
+                    break;
+                case 'bike':
+                    iconClass = 'fa-bicycle';
+                    break;
+                case 'subway':
+                    iconClass = 'fa-subway';
+                    break;
+            }
+            if (iconClass) {
+                const icon = document.createElement('i');
+                icon.className = `fas ${iconClass} transport-icon`;
+                icon.title = transport.trim();
+                transportsContainer.appendChild(icon);
+            }
+        });
+        
+        // Initialize or update map
+        if (!map) {
+            map = L.map('map', {
+                center: [46.603354, 1.888334], // Centre de la France
+                zoom: 4,
+                zoomControl: true,
+                minZoom: 4,
+                maxZoom: 12,
+                dragging: true,
+                scrollWheelZoom: true,
+                doubleClickZoom: true,
+                boxZoom: false,
+                keyboard: false,
+                tap: false
+            });
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+        }
+        
+        // Remove existing marker if any
+        if (marker) {
+            map.removeLayer(marker);
+        }
+        
+        // Geocode city name to coordinates
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(city)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    const lat = parseFloat(data[0].lat);
+                    const lon = parseFloat(data[0].lon);
+                    marker = L.marker([lat, lon]).addTo(map);
+                    map.setView([lat, lon], 12);
+                }
+            })
+            .catch(error => console.error('Error geocoding:', error));
+
+        document.getElementById('responseModal').classList.add('active');
+        document.getElementById('modalOverlay').classList.add('active');
+    }
+
+    function openViewModal(userName, transports, city, score) {
+        document.getElementById('viewUserName').textContent = userName;
+        document.getElementById('viewTransports').textContent = transports;
+        document.getElementById('viewCity').textContent = city;
+        document.getElementById('viewScore').textContent = score;
+        
+        // Initialize or update map
+        if (!map) {
+            map = L.map('map').setView([46.603354, 1.888334], 6); // Centre de la France
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+        }
+        
+        // Remove existing marker if any
+        if (marker) {
+            map.removeLayer(marker);
+        }
+        
+        // Geocode city name to coordinates
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(city)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    const lat = parseFloat(data[0].lat);
+                    const lon = parseFloat(data[0].lon);
+                    marker = L.marker([lat, lon]).addTo(map);
+                    map.setView([lat, lon], 12);
+                }
+            })
+            .catch(error => console.error('Error geocoding:', error));
+
+        document.getElementById('viewModal').classList.add('active');
+        document.getElementById('modalOverlay').classList.add('active');
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('active');
+        document.getElementById('modalOverlay').classList.remove('active');
+    }
+
+    function closeAllModals() {
+        document.getElementById('responseModal').classList.remove('active');
+        document.getElementById('viewModal').classList.remove('active');
+        document.getElementById('modalOverlay').classList.remove('active');
+    }
+
+    // Gérer la soumission du formulaire
+    document.getElementById('evalForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const transportVerified = formData.get('transport_verified') === 'on';
+        const cityVerified = formData.get('city_verified') === 'on';
+        const totalScore = formData.get('total_score');
+
+        // Mettre à jour le tableau
+        if (currentRow) {
+            // Mettre à jour les statuts
+            const transportStatusCell = currentRow.querySelector('td:nth-child(3)');
+            const cityStatusCell = currentRow.querySelector('td:nth-child(5)');
+            const scoreCell = currentRow.querySelector('td:nth-child(6)');
+
+            transportStatusCell.innerHTML = transportVerified ? 
+                '<span class="status-badge status-verified"><i class="fas fa-check"></i> Vérifié</span>' : 
+                '<span class="status-badge status-pending"><i class="fas fa-clock"></i> En attente</span>';
+
+            cityStatusCell.innerHTML = cityVerified ? 
+                '<span class="status-badge status-verified"><i class="fas fa-check"></i> Vérifié</span>' : 
+                '<span class="status-badge status-pending"><i class="fas fa-clock"></i> En attente</span>';
+
+            scoreCell.textContent = totalScore;
+        }
+
+        // Soumettre le formulaire
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Afficher le message de succès
+                const successMessage = document.getElementById('successMessage');
+                successMessage.style.display = 'block';
+                
+                // Mettre à jour le tableau avec les scores retournés
+                if (currentRow) {
+                    const scoreCell = currentRow.querySelector('td:nth-child(6)');
+                    scoreCell.textContent = data.total_score;
+                }
+                
+                // Fermer la modale après 1.5 secondes
+                setTimeout(() => {
+                    closeModal('responseModal');
+                    successMessage.style.display = 'none';
+                }, 1500);
+            } else {
+                console.error('Erreur lors de la soumission du formulaire:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
         });
     });
 </script>
-{% endblock %}
 {% endblock %} 
