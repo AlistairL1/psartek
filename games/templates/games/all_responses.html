@@ -8,6 +8,28 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+    .custom-marker {
+        color: #FF5733;
+        font-size: 25px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    .zoom-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 1000;
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 8px 12px;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .zoom-button:hover {
+        background: #f8f8f8;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -93,24 +115,27 @@
                     </td>
                     <td>
                         {% if response.transport_guess.is_verified is False %}
-                            <span class="status-badge status-pending">En attente</span>
+                            <span class="status-badge status-pending"><i class="fas fa-clock"></i> En attente</span>
                         {% elif response.transport_guess.is_verified %}
-                            <span class="status-badge status-verified">Vérifié</span>
+                            <span class="status-badge status-verified"><i class="fas fa-check"></i> Vérifié</span> 
                         {% endif %}
                     </td>
                     <td>{{ response.map_guess.city_name }}</td>
                     <td>
                         {% if response.map_guess.is_verified is False %}
-                            <span class="status-badge status-pending">En attente</span>
+                            <span class="status-badge status-pending"><i class="fas fa-clock"></i> En attente</span>
                         {% elif response.map_guess.is_verified %}
-                            <span class="status-badge status-verified">Vérifié</span>
+                            <span class="status-badge status-verified"><i class="fas fa-check"></i> Vérifié</span>
                         {% endif %}
                     </td>
                     <td>{{ response.total_score }}</td>
                     <td>
                         <div class="btn-group">
                             <button class="btn btn-sm btn-primary" onclick="openResponseModal('{{ response.user.first_name }}', {{ response.user.id }}, '{{ response.transport_guess.transports|join:', ' }}', '{{ response.map_guess.city_name }}', {{ response.total_score }}, this)">
-                            <i class="fas fa-check-circle"></i> Évaluer
+                                <i class="fas fa-check-circle"></i> Évaluer
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteResponse({{ response.user.id }}, this)">
+                                <i class="fas fa-trash"></i> Supprimer
                             </button>
                         </div>
                     </td>
@@ -162,7 +187,7 @@
                         <button type="button" class="btn btn-sm btn-info" onclick="closeModal('responseModal')">
                             <i class="fas fa-times"></i> Annuler
                         </button>
-                        <button type="submit" class="btn btn-sm btn-primary">
+                        <button type="submit" class="btn btn-sm btn-primary" onclick="closeModal('responseModal')">
                             <i class="fas fa-check"></i> Valider
                         </button>
                     </div>
@@ -259,7 +284,7 @@
                 tap: false
             });
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                attribution: '© OpenStreetMap contributors'
             }).addTo(map);
         }
         
@@ -275,49 +300,68 @@
                 if (data && data.length > 0) {
                     const lat = parseFloat(data[0].lat);
                     const lon = parseFloat(data[0].lon);
-                    marker = L.marker([lat, lon]).addTo(map);
+                    
+                    // Ajouter un marqueur personnalisé
+                    marker = L.marker([lat, lon], {
+                        icon: L.divIcon({
+                            className: 'custom-marker',
+                            html: '<i class="fas fa-map-marker-alt"></i>',
+                            iconSize: [25, 41],
+                            iconAnchor: [12, 41]
+                        })
+                    }).addTo(map);
+                    
                     map.setView([lat, lon], 12);
+                    
+                    // Ajouter le bouton crosshairs sous les contrôles de zoom
+                    const crosshairsButton = L.Control.extend({
+                        options: {
+                            position: 'topleft'
+                        },
+                        onAdd: function(map) {
+                            const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+                            const button = L.DomUtil.create('a', 'leaflet-control-crosshairs', container);
+                            button.innerHTML = '<i class="fas fa-crosshairs"></i>';
+                            button.href = '#';
+                            button.title = 'Centrer sur le marqueur';
+                            
+                            L.DomEvent.on(button, 'click', function(e) {
+                                L.DomEvent.preventDefault(e);
+                                map.setView([lat, lon], 12);
+                            });
+                            
+                            return container;
+                        }
+                    });
+
+                    // Ajouter le bouton maison pour revenir à la vue initiale
+                    const homeButton = L.Control.extend({
+                        options: {
+                            position: 'topright'
+                        },
+                        onAdd: function(map) {
+                            const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+                            const button = L.DomUtil.create('a', 'leaflet-control-home', container);
+                            button.innerHTML = '<i class="fas fa-home"></i>';
+                            button.href = '#';
+                            button.title = 'Vue initiale';
+                            
+                            L.DomEvent.on(button, 'click', function(e) {
+                                L.DomEvent.preventDefault(e);
+                                map.setView([46.603354, 1.888334], 4);
+                            });
+                            
+                            return container;
+                        }
+                    });
+                    
+                    map.addControl(new crosshairsButton());
+                    map.addControl(new homeButton());
                 }
             })
             .catch(error => console.error('Error geocoding:', error));
 
         document.getElementById('responseModal').classList.add('active');
-        document.getElementById('modalOverlay').classList.add('active');
-    }
-
-    function openViewModal(userName, transports, city, score) {
-        document.getElementById('viewUserName').textContent = userName;
-        document.getElementById('viewTransports').textContent = transports;
-        document.getElementById('viewCity').textContent = city;
-        document.getElementById('viewScore').textContent = score;
-        
-        // Initialize or update map
-        if (!map) {
-            map = L.map('map').setView([46.603354, 1.888334], 6); // Centre de la France
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
-        }
-        
-        // Remove existing marker if any
-        if (marker) {
-            map.removeLayer(marker);
-        }
-        
-        // Geocode city name to coordinates
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(city)}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data && data.length > 0) {
-                    const lat = parseFloat(data[0].lat);
-                    const lon = parseFloat(data[0].lon);
-                    marker = L.marker([lat, lon]).addTo(map);
-                    map.setView([lat, lon], 12);
-                }
-            })
-            .catch(error => console.error('Error geocoding:', error));
-
-        document.getElementById('viewModal').classList.add('active');
         document.getElementById('modalOverlay').classList.add('active');
     }
 
@@ -380,9 +424,11 @@
                     scoreCell.textContent = data.total_score;
                 }
                 
-                // Fermer la modale après 1.5 secondes
+                // Fermer le modal immédiatement
+                closeModal('responseModal');
+                
+                // Cacher le message de succès après 1.5 secondes
                 setTimeout(() => {
-                    closeModal('responseModal');
                     successMessage.style.display = 'none';
                 }, 1500);
             } else {
@@ -393,5 +439,47 @@
             console.error('Erreur:', error);
         });
     });
+
+    function deleteResponse(userId, button) {
+        if (confirm('Êtes-vous sûr de vouloir supprimer cette réponse ? Cette action est irréversible.')) {
+            const row = button.closest('tr');
+            
+            fetch("{% url 'delete_response' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({
+                    user_id: userId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Supprimer la ligne du tableau
+                    row.remove();
+                    
+                    // Afficher un message de succès
+                    const messagesDiv = document.querySelector('.messages');
+                    const successMessage = document.createElement('div');
+                    successMessage.className = 'message success';
+                    successMessage.innerHTML = '<i class="fas fa-check-circle"></i> La réponse a été supprimée avec succès.';
+                    messagesDiv.appendChild(successMessage);
+                    
+                    // Supprimer le message après 3 secondes
+                    setTimeout(() => {
+                        successMessage.remove();
+                    }, 3000);
+                } else {
+                    alert('Erreur lors de la suppression : ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Une erreur est survenue lors de la suppression.');
+            });
+        }
+    }
 </script>
 {% endblock %} 

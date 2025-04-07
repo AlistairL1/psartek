@@ -55,12 +55,3 @@ class MapGuess(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.city_name or 'Ville inconnue'}"
-
-class GameEvaluation(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    evaluated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='evaluations_made')
-    total_score = models.IntegerField(null=True, blank=True)
-    evaluated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"Évaluation de {self.user.username} par {self.evaluated_by.username if self.evaluated_by else 'Non évalué'}"
